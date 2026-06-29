@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Moon View</title>
+    <script>
+      try {
+        const prefs = JSON.parse(localStorage.getItem("bible-parallel-prefs") || "{}");
+        if (prefs.darkMode) document.documentElement.dataset.theme = "dark";
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
