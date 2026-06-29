@@ -9,7 +9,8 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "build-data": "python3 scripts/build_data.py",
-    "build-figures": "python3 ../figure-dictionary/scripts/build.py"
+    "build-figures": "python3 ../figure-dictionary/scripts/build.py",
+    "deploy:pages": "bash scripts/deploy-pages.sh"
   },
   "dependencies": {
     "hebrew-transliteration": "^2.10.1",
