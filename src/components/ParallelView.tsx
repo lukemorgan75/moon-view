@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useScrollToPinnedVerse } from "../hooks/useScrollToPinnedVerse";
 import { getBookMeta, sourceLanguageLabel } from "../api/book-meta";
 import {
@@ -80,15 +80,45 @@ function ColumnHeaders({
   view,
   book,
   subtle = false,
+  englishCols,
+  focusable = false,
+  focusedVersion = null,
+  onVersionFocus,
+  onCollapseFocus,
 }: {
   gridTemplate: string;
   showRefs: boolean;
   view: DerivedViewState;
   book: string;
   subtle?: boolean;
+  englishCols?: EnglishVersion[];
+  focusable?: boolean;
+  focusedVersion?: EnglishVersion | null;
+  onVersionFocus?: (version: EnglishVersion) => void;
+  onCollapseFocus?: () => void;
 }) {
-  const englishCols = activeEnglishVersions(view.columns);
+  const cols = englishCols ?? activeEnglishVersions(view.columns);
   const englishLabel = subtle ? englishVersionShortLabel : englishVersionLabel;
+
+  if (focusable && focusedVersion) {
+    return (
+      <div className="column-header-row column-header-row--subtle column-header-row--solo">
+        <div className="column-focus-bar">
+          <span className="header-cell header-cell--subtle header-cell--focused">
+            {englishLabel(focusedVersion)}
+          </span>
+          <button
+            type="button"
+            className="column-focus-collapse"
+            onClick={onCollapseFocus}
+            aria-label="Show all columns"
+          >
+            All columns
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -96,14 +126,27 @@ function ColumnHeaders({
       style={{ gridTemplateColumns: gridTemplate }}
     >
       {showRefs && <div className="cell ref-cell" />}
-      {englishCols.map((version) => (
-        <div
-          key={version}
-          className={`cell header-cell${subtle ? " header-cell--subtle" : ""}`}
-        >
-          {englishLabel(version)}
-        </div>
-      ))}
+      {cols.map((version) =>
+        focusable ? (
+          <button
+            key={version}
+            type="button"
+            className={`cell header-cell header-cell--focusable${subtle ? " header-cell--subtle" : ""}`}
+            onClick={() => onVersionFocus?.(version)}
+            aria-label={`Show only ${englishLabel(version)}`}
+            title={`Show only ${englishLabel(version)}`}
+          >
+            {englishLabel(version)}
+          </button>
+        ) : (
+          <div
+            key={version}
+            className={`cell header-cell${subtle ? " header-cell--subtle" : ""}`}
+          >
+            {englishLabel(version)}
+          </div>
+        ),
+      )}
       {view.columns.hebrew && (
         <div
           className={`cell header-cell${subtle ? " header-cell--subtle" : ""}`}
@@ -288,23 +331,22 @@ function ContinuousProseColumn({
 
 function ContinuousProse({
   verses,
-  view,
   viewMode,
   yltDivineNames,
+  englishCols,
   gridTemplate,
   pinnedVerse,
   onTogglePinnedVerse,
 }: {
   verses: VerseRow[];
-  view: DerivedViewState;
   viewMode: ViewerPreferences["viewMode"];
   yltDivineNames: boolean;
+  englishCols: EnglishVersion[];
   gridTemplate: string;
   pinnedVerse: string | null;
   onTogglePinnedVerse: (verseKey: string) => void;
 }) {
   const [hoveredVerse, setHoveredVerse] = useState<string | null>(null);
-  const englishCols = activeEnglishVersions(view.columns);
 
   return (
     <div
@@ -381,6 +423,51 @@ export function ParallelView({
   );
 
   const { pinnedVerse, togglePinnedVerse } = usePinnedVerse(prefs.book);
+  const [focusedVersion, setFocusedVersion] = useState<EnglishVersion | null>(
+    null,
+  );
+
+  const naturalEnglishCols = useMemo(
+    () => activeEnglishVersions(view.columns),
+    [view.columns],
+  );
+
+  const displayEnglishCols = useMemo(() => {
+    if (focusedVersion && naturalEnglishCols.includes(focusedVersion)) {
+      return [focusedVersion];
+    }
+    return naturalEnglishCols;
+  }, [naturalEnglishCols, focusedVersion]);
+
+  const displayGridTemplate = useMemo(() => {
+    if (view.continuousMode && focusedVersion) return "1fr";
+    return gridTemplate;
+  }, [view.continuousMode, focusedVersion, gridTemplate]);
+
+  const columnFocusEnabled = view.continuousMode;
+
+  const handleVersionFocus = useCallback((version: EnglishVersion) => {
+    setFocusedVersion((current) => (current === version ? null : version));
+  }, []);
+
+  const handleCollapseFocus = useCallback(() => {
+    setFocusedVersion(null);
+  }, []);
+
+  useEffect(() => {
+    if (!view.continuousMode) setFocusedVersion(null);
+  }, [view.continuousMode, prefs.book]);
+
+  useEffect(() => {
+    if (!focusedVersion) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setFocusedVersion(null);
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [focusedVersion]);
 
   useScrollToPinnedVerse(pinnedVerse, verses.length, prefs.viewMode);
 
@@ -395,10 +482,10 @@ export function ParallelView({
   const verseBody = view.continuousMode ? (
     <ContinuousProse
       verses={verses}
-      view={view}
       viewMode={prefs.viewMode}
       yltDivineNames={prefs.yltDivineNames}
-      gridTemplate={gridTemplate}
+      englishCols={displayEnglishCols}
+      gridTemplate={displayGridTemplate}
       pinnedVerse={pinnedVerse}
       onTogglePinnedVerse={togglePinnedVerse}
     />
@@ -480,14 +567,19 @@ export function ParallelView({
       className={`reader-layout ${selection ? "reader-layout--pane-open" : ""}`}
     >
       <div
-        className={`parallel-view ${view.continuousMode ? "parallel-view--continuous" : ""} parallel-view--${prefs.viewMode}`}
+        className={`parallel-view ${view.continuousMode ? "parallel-view--continuous" : ""} parallel-view--${prefs.viewMode}${focusedVersion ? " parallel-view--column-focused" : ""}`}
       >
         <ColumnHeaders
-          gridTemplate={gridTemplate}
+          gridTemplate={displayGridTemplate}
           showRefs={showRefs}
           view={view}
           book={prefs.book}
           subtle={view.continuousMode}
+          englishCols={displayEnglishCols}
+          focusable={columnFocusEnabled}
+          focusedVersion={focusedVersion}
+          onVersionFocus={handleVersionFocus}
+          onCollapseFocus={handleCollapseFocus}
         />
         {verseBody}
       </div>
