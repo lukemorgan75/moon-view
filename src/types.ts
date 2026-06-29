@@ -65,7 +65,7 @@ export const DEFAULT_PREFERENCES: ViewerPreferences = {
   viewMode: "natural",
   theme: "dark",
   naturalEnglish: "kjv",
-  yltDivineNames: true,
+  yltDivineNames: false,
 };
 
 export interface DerivedViewState {

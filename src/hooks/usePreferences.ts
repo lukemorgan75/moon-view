@@ -5,7 +5,7 @@ import { isTorahBook, TORAH_BOOK_NAMES } from "../api/book-meta";
 const STORAGE_KEY = "moon-view-torah-prefs";
 
 /** Bump when preference defaults change and should reset saved values. */
-const STORAGE_VERSION = 2;
+const STORAGE_VERSION = 3;
 
 type StoredPreferences = Partial<ViewerPreferences> & { v?: number };
 
