@@ -1,38 +1,37 @@
-import { getBookMeta } from "./book-meta";
 import type { ColumnVisibility, EnglishVersion } from "../types";
 
-export type SecondaryEnglishVersion = Extract<EnglishVersion, "jps" | "rsv">;
-
-export function secondaryEnglishVersion(book: string): SecondaryEnglishVersion {
-  return getBookMeta(book).testament === "OT" ? "jps" : "rsv";
-}
-
-export function secondaryEnglishLabel(book: string): string {
-  return getBookMeta(book).testament === "OT" ? "JPS" : "RSV";
-}
-
-export function englishVersionLabel(
-  version: EnglishVersion,
-  book: string,
-): string {
+export function englishVersionLabel(version: EnglishVersion): string {
   switch (version) {
     case "kjv":
       return "King James Version";
     case "jps":
       return "JPS 1985";
-    case "rsv":
-      return "RSV";
+    case "ylt":
+      return "Young's Literal Translation";
     default:
-      return secondaryEnglishLabel(book);
+      return version;
+  }
+}
+
+export function englishVersionShortLabel(version: EnglishVersion): string {
+  switch (version) {
+    case "kjv":
+      return "KJV";
+    case "jps":
+      return "JPS";
+    case "ylt":
+      return "YLT";
+    default:
+      return version;
   }
 }
 
 export function activeEnglishVersions(
   columns: ColumnVisibility,
-  book: string,
 ): EnglishVersion[] {
   const versions: EnglishVersion[] = [];
   if (columns.kjv) versions.push("kjv");
-  if (columns.jps) versions.push(secondaryEnglishVersion(book));
+  if (columns.jps) versions.push("jps");
+  if (columns.ylt) versions.push("ylt");
   return versions;
 }

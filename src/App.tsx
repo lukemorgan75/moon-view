@@ -1,34 +1,34 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { loadParallelVerses } from "./api/bible";
+import { getBookMeta } from "./api/book-meta";
 import { loadStrongsDictionary } from "./api/strongs";
 import { ParallelView } from "./components/ParallelView";
 import { Toolbar } from "./components/Toolbar";
-import { useAutoCollapseToolbar } from "./hooks/useAutoCollapseToolbar";
 import { useHeaderOffset } from "./hooks/useHeaderOffset";
 import { useNotes } from "./hooks/useNotes";
 import { usePreferences } from "./hooks/usePreferences";
-import type { VerseRow } from "./types";
+import { deriveViewState, type VerseRow } from "./types";
 
 function App() {
-  const { prefs, update, toggleColumn } = usePreferences();
+  const { prefs, update } = usePreferences();
   const { notes, setNote } = useNotes(prefs.book);
   const [verses, setVerses] = useState<VerseRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const loadGen = useRef(0);
 
+  const view = useMemo(() => {
+    const { chapters } = getBookMeta(prefs.book);
+    return deriveViewState(prefs, chapters);
+  }, [prefs]);
+
   useEffect(() => {
-    if (prefs.columns.hebrew) {
+    if (prefs.viewMode === "analytic") {
       loadStrongsDictionary().catch(() => {});
     }
-  }, [prefs.columns.hebrew]);
+  }, [prefs.viewMode]);
 
   const loadText = useCallback(async () => {
-    if (prefs.chapterStart < 1 || prefs.chapterEnd < prefs.chapterStart) {
-      setError("Invalid chapter range.");
-      return;
-    }
-
     const generation = ++loadGen.current;
     setLoading(true);
     setError(null);
@@ -36,9 +36,9 @@ function App() {
     try {
       const rows = await loadParallelVerses(
         prefs.book,
-        prefs.chapterStart,
-        prefs.chapterEnd,
-        prefs.columns,
+        view.chapterStart,
+        view.chapterEnd,
+        view.columns,
       );
       if (generation !== loadGen.current) return;
       setVerses(rows);
@@ -49,29 +49,17 @@ function App() {
     } finally {
       if (generation === loadGen.current) setLoading(false);
     }
-  }, [prefs.book, prefs.chapterStart, prefs.chapterEnd, prefs.columns]);
+  }, [prefs.book, view]);
 
   useEffect(() => {
     loadText();
   }, [loadText]);
 
-  const collapseToolbar = useCallback(() => {
-    update({ toolbarExpanded: false });
-  }, [update]);
-
-  useAutoCollapseToolbar(prefs.toolbarExpanded, collapseToolbar);
   useHeaderOffset(!!error);
 
   return (
     <div className="app">
-      <Toolbar
-        prefs={prefs}
-        loading={loading}
-        verseCount={verses.length}
-        onUpdate={update}
-        onToggleColumn={toggleColumn}
-        onReload={loadText}
-      />
+      <Toolbar prefs={prefs} loading={loading} onUpdate={update} />
 
       {error && <p className="error-banner">{error}</p>}
 
@@ -83,9 +71,9 @@ function App() {
           <ParallelView
             verses={verses}
             prefs={prefs}
+            view={view}
             notes={notes}
             onNoteChange={setNote}
-            onUpdate={update}
           />
         )}
       </main>

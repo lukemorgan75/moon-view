@@ -1,12 +1,44 @@
 import { englishText } from "../api/bible";
-import type { EnglishVersion, VerseRow } from "../types";
+import type { EnglishVersion, VerseRow, ViewMode } from "../types";
 import { stripHtml } from "./html";
+import { formatYltAnalytic, formatYltNatural } from "./ylt-format";
 
 export const CONTINUOUS_NOTE_KEY = "continuous";
 
-export function joinEnglish(verses: VerseRow[], version: EnglishVersion): string {
+function formatEnglish(
+  text: string,
+  version: EnglishVersion,
+  viewMode: ViewMode,
+  yltDivineNames: boolean,
+): string {
+  if (version === "ylt") {
+    const options = { divineNames: yltDivineNames };
+    return viewMode === "natural"
+      ? formatYltNatural(text, options)
+      : formatYltAnalytic(text, options);
+  }
+  return text;
+}
+
+export function displayEnglish(
+  row: VerseRow,
+  version: EnglishVersion,
+  viewMode: ViewMode,
+  yltDivineNames = true,
+): string {
+  const raw = englishText(row, version);
+  if (!raw) return "";
+  return formatEnglish(raw, version, viewMode, yltDivineNames);
+}
+
+export function joinEnglish(
+  verses: VerseRow[],
+  version: EnglishVersion,
+  viewMode: ViewMode,
+  yltDivineNames = true,
+): string {
   return verses
-    .map((row) => englishText(row, version))
+    .map((row) => displayEnglish(row, version, viewMode, yltDivineNames))
     .filter(Boolean)
     .join(" ");
 }
@@ -14,14 +46,18 @@ export function joinEnglish(verses: VerseRow[], version: EnglishVersion): string
 export function joinVerseField(
   verses: VerseRow[],
   field: "hebrew",
+  viewMode: ViewMode,
 ): string;
 export function joinVerseField(
   verses: VerseRow[],
   field: EnglishVersion,
+  viewMode: ViewMode,
 ): string;
 export function joinVerseField(
   verses: VerseRow[],
   field: EnglishVersion | "hebrew",
+  viewMode: ViewMode,
+  yltDivineNames = true,
 ): string {
   if (field === "hebrew") {
     return verses
@@ -30,7 +66,7 @@ export function joinVerseField(
       .join(" ");
   }
 
-  return joinEnglish(verses, field);
+  return joinEnglish(verses, field, viewMode, yltDivineNames);
 }
 
 export function joinRawHebrew(verses: VerseRow[]): string {

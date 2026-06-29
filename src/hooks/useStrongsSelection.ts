@@ -1,12 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getBookMeta, type SourceLanguage } from "../api/book-meta";
 import {
-  loadFigureDictionary,
-  lookupFigures,
-  type FigureBundle,
-  type FigureLookupResult,
-} from "../api/figures";
-import {
   loadStrongsDictionaries,
   lookupStrongs,
   type StrongsDictionaries,
@@ -34,7 +28,6 @@ export function useStrongsSelection(
   const [dictionaries, setDictionaries] = useState<StrongsDictionaries | null>(
     null,
   );
-  const [figureBundle, setFigureBundle] = useState<FigureBundle | null>(null);
 
   useStrongsHighlight(selection);
 
@@ -46,9 +39,6 @@ export function useStrongsSelection(
     loadStrongsDictionaries()
       .then(setDictionaries)
       .catch(() => setDictionaries({ hebrew: {}, greek: {} }));
-    loadFigureDictionary()
-      .then(setFigureBundle)
-      .catch(() => setFigureBundle(null));
   }, [enabled]);
 
   useEffect(() => {
@@ -69,14 +59,6 @@ export function useStrongsSelection(
     if (!selection || !dictionaries) return null;
     return lookupStrongs(dictionaries, selection.strong, selection.sourceLang);
   }, [selection, dictionaries]);
-
-  const figureMatches: FigureLookupResult[] = useMemo(() => {
-    if (!selection || !figureBundle) return [];
-    return lookupFigures(figureBundle, {
-      he: selection.strong,
-      en: selection.englishWord,
-    });
-  }, [selection, figureBundle]);
 
   const selectWord = useCallback(
     (strong: string, active: WordLocation, englishWord?: string) => {
@@ -107,8 +89,6 @@ export function useStrongsSelection(
     selection,
     occurrences,
     entry,
-    figureMatches,
-    figureBundle,
     sourceLang,
     selectWord,
     selectOccurrence,

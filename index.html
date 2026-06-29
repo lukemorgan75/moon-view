@@ -1,13 +1,22 @@
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Moon View</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
     <script>
       try {
-        const prefs = JSON.parse(localStorage.getItem("bible-parallel-prefs") || "{}");
-        if (prefs.darkMode) document.documentElement.dataset.theme = "dark";
+        const prefs = JSON.parse(
+          localStorage.getItem("moon-view-torah-prefs") || "{}",
+        );
+        document.documentElement.dataset.theme =
+          prefs.theme === "papyrus" ? "papyrus" : "dark";
       } catch {}
     </script>
   </head>

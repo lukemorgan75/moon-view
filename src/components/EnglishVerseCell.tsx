@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { YltRichText } from "./YltRichText";
 import type { AlignableEnglishVersion } from "../utils/english-alignment";
 import type { MorphWord, VerseRef, WordLocation } from "../types";
 import {
@@ -13,6 +14,7 @@ interface EnglishVerseCellProps {
   verseRef: VerseRef;
   morph?: MorphWord[];
   align?: number[][];
+  yltRichText?: boolean;
   onWordSelect?: (
     strong: string,
     location: WordLocation,
@@ -31,7 +33,8 @@ function englishCellsEqual(
     prev.morph === next.morph &&
     prev.verseRef.chapter === next.verseRef.chapter &&
     prev.verseRef.verse === next.verseRef.verse &&
-    prev.onWordSelect === next.onWordSelect
+    prev.onWordSelect === next.onWordSelect &&
+    prev.yltRichText === next.yltRichText
   );
 }
 
@@ -41,9 +44,14 @@ export const EnglishVerseCell = memo(function EnglishVerseCell({
   verseRef,
   morph,
   align,
+  yltRichText = false,
   onWordSelect,
 }: EnglishVerseCellProps) {
   if (!text) return null;
+
+  if (version === "ylt" && yltRichText) {
+    return <YltRichText html={text} />;
+  }
 
   if (!morph?.length) {
     return <>{text}</>;

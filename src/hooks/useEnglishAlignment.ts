@@ -76,7 +76,7 @@ export function useEnglishAlignment(
             strongs,
             sourceLang,
           );
-          if (!align.jps && !align.kjv) continue;
+          if (!align.ylt && !align.kjv) continue;
           batch.set(verseAlignKey(row.ref.chapter, row.ref.verse), align);
         }
 

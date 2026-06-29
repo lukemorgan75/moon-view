@@ -1,4 +1,3 @@
-import { getBookMeta } from "./book-meta";
 import { getOrCreateCachedBook } from "./book-cache";
 import {
   activeEnglishVersions,
@@ -103,39 +102,13 @@ function flattenSefaria(
   return map;
 }
 
+function flattenSefariaFull(text: string[][]): Map<string, string> {
+  return flattenSefaria(text, 1, text.length);
+}
+
 async function ensureHebrew(book: string): Promise<string[][]> {
   const cached = getOrCreateCachedBook(book);
   if (cached.hebrew) return cached.hebrew;
-
-  const meta = getBookMeta(book);
-  if (meta.sourceLanguage === "greek") {
-    const response = await fetch(
-      assetUrl(`/data/greek/${encodeURIComponent(book)}.json`),
-    );
-    if (!response.ok) {
-      throw new Error(`Missing local Greek text for ${book}.`);
-    }
-    const verses = (await response.json()) as Record<string, string>;
-    const byChapter = new Map<number, string[]>();
-    for (const [key, text] of Object.entries(verses)) {
-      const [chapter, verse] = key.split(":").map(Number);
-      while (byChapter.size < chapter) {
-        byChapter.set(byChapter.size + 1, []);
-      }
-      const chapterVerses = byChapter.get(chapter) ?? [];
-      while (chapterVerses.length < verse) {
-        chapterVerses.push("");
-      }
-      chapterVerses[verse - 1] = text;
-      byChapter.set(chapter, chapterVerses);
-    }
-    const text: string[][] = [];
-    for (let c = 1; c <= byChapter.size; c++) {
-      text.push(byChapter.get(c) ?? []);
-    }
-    cached.hebrew = text;
-    return cached.hebrew;
-  }
 
   await getBooksIndex();
   const data = (await fetchJson(
@@ -147,17 +120,17 @@ async function ensureHebrew(book: string): Promise<string[][]> {
   return cached.hebrew;
 }
 
-async function ensureJps(book: string): Promise<string[][]> {
+async function ensureJps(book: string): Promise<Map<string, string>> {
   const cached = getOrCreateCachedBook(book);
   if (cached.jps) return cached.jps;
 
   await getBooksIndex();
   const data = (await fetchJson(
     resolveSefariaUrl(book, JPS_VERSION, "English"),
-    `${book} JPS 1985`,
+    `${book} JPS`,
   )) as { text: string[][] };
 
-  cached.jps = data.text;
+  cached.jps = flattenSefariaFull(data.text);
   return cached.jps;
 }
 
@@ -187,19 +160,21 @@ async function ensureKjv(book: string): Promise<Map<string, string>> {
   return map;
 }
 
-async function ensureRsv(book: string): Promise<Record<string, string>> {
+async function ensureYlt(book: string): Promise<Record<string, string>> {
   const cached = getOrCreateCachedBook(book);
-  if (cached.rsv) return cached.rsv;
+  if (cached.ylt) return cached.ylt;
 
   const response = await fetch(
-    assetUrl(`/data/bibles/rsv/${encodeURIComponent(book)}.json`),
+    assetUrl(`/data/bibles/ylt/${encodeURIComponent(book)}.json`),
   );
   if (!response.ok) {
-    throw new Error(`Missing local RSV data for ${book}.`);
+    throw new Error(
+      `Missing YLT data for ${book}. Run: npm run build-ylt`,
+    );
   }
 
   const data = (await response.json()) as Record<string, string>;
-  cached.rsv = data;
+  cached.ylt = data;
   return data;
 }
 
@@ -258,16 +233,16 @@ function sliceMorph(
 
 function buildRows(
   hebrewMap: Map<string, string>,
-  jpsMap: Map<string, string>,
   kjvMap: Map<string, string>,
-  rsvMap: Map<string, string>,
+  jpsMap: Map<string, string>,
+  yltMap: Map<string, string>,
   morphMap: Map<string, MorphWord[]>,
 ): VerseRow[] {
   const refs = new Set<string>([
     ...hebrewMap.keys(),
-    ...jpsMap.keys(),
     ...kjvMap.keys(),
-    ...rsvMap.keys(),
+    ...jpsMap.keys(),
+    ...yltMap.keys(),
     ...morphMap.keys(),
   ]);
 
@@ -282,13 +257,13 @@ function buildRows(
 
     if (kjvMap.has(key)) english.kjv = kjvMap.get(key)!;
     if (jpsMap.has(key)) {
-      english.jps = formatJps(jpsMap.get(key)!);
+      english.jps = stripHtml(jpsMap.get(key)!, false);
     }
-    if (rsvMap.has(key)) english.rsv = rsvMap.get(key)!;
+    if (yltMap.has(key)) english.ylt = yltMap.get(key)!;
 
     rows.push({
       ref: { chapter, verse },
-      hebrew: hebrewMap.get(key) ?? "",
+      hebrew: stripHtml(hebrewMap.get(key) ?? "", false),
       english,
       morph: morphMap.get(key),
     });
@@ -303,17 +278,15 @@ export async function loadParallelVerses(
   chapterEnd: number,
   columns: ColumnVisibility,
 ): Promise<VerseRow[]> {
-  const versions = activeEnglishVersions(columns, book);
-  const meta = getBookMeta(book);
+  const versions = activeEnglishVersions(columns);
   const needSource = columns.hebrew;
-  const needJps = versions.includes("jps") && meta.testament === "OT";
-  const needRsv = versions.includes("rsv") && meta.testament === "NT";
+  const needYlt = versions.includes("ylt");
 
   const loaders: Promise<unknown>[] = [];
   if (needSource) loaders.push(ensureHebrew(book));
-  if (needJps) loaders.push(ensureJps(book));
   if (versions.includes("kjv")) loaders.push(ensureKjv(book));
-  if (needRsv) loaders.push(ensureRsv(book));
+  if (versions.includes("jps")) loaders.push(ensureJps(book));
+  if (needYlt) loaders.push(ensureYlt(book));
   if (needSource) loaders.push(ensureMorph(book));
   await Promise.all(loaders);
 
@@ -322,24 +295,20 @@ export async function loadParallelVerses(
   const hebrewMap = needSource
     ? flattenSefaria(cached.hebrew!, chapterStart, chapterEnd)
     : new Map<string, string>();
-  const jpsMap = needJps
-    ? flattenSefaria(cached.jps!, chapterStart, chapterEnd)
-    : new Map<string, string>();
   const kjvMap = versions.includes("kjv")
     ? sliceMap(cached.kjv!, chapterStart, chapterEnd)
     : new Map<string, string>();
-  const rsvMap = needRsv
-    ? sliceRecord(cached.rsv!, chapterStart, chapterEnd)
+  const jpsMap = versions.includes("jps")
+    ? sliceMap(cached.jps!, chapterStart, chapterEnd)
+    : new Map<string, string>();
+  const yltMap = needYlt
+    ? sliceRecord(cached.ylt!, chapterStart, chapterEnd)
     : new Map<string, string>();
   const morphMap = needSource
     ? sliceMorph(cached.morph!, chapterStart, chapterEnd)
     : new Map<string, MorphWord[]>();
 
-  return buildRows(hebrewMap, jpsMap, kjvMap, rsvMap, morphMap);
-}
-
-export function formatJps(text: string): string {
-  return stripHtml(text, true);
+  return buildRows(hebrewMap, kjvMap, jpsMap, yltMap, morphMap);
 }
 
 export function englishText(row: VerseRow, version: EnglishVersion): string {

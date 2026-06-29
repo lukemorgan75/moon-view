@@ -3,7 +3,13 @@ export interface VerseRef {
   verse: number;
 }
 
-export type EnglishVersion = "kjv" | "jps" | "rsv";
+export type EnglishVersion = "kjv" | "jps" | "ylt";
+
+export type NaturalEnglishVersion = "kjv" | "jps";
+
+export type ViewMode = "natural" | "analytic";
+
+export type ThemeMode = "dark" | "papyrus";
 
 export interface MorphWord {
   t: string;
@@ -41,37 +47,75 @@ export interface VerseRow {
 export interface ColumnVisibility {
   kjv: boolean;
   jps: boolean;
+  ylt: boolean;
   hebrew: boolean;
   notes: boolean;
 }
 
 export interface ViewerPreferences {
   book: string;
-  chapterStart: number;
-  chapterEnd: number;
-  showRefs: boolean;
-  showChapterHeadings: boolean;
-  continuousMode: boolean;
-  darkMode: boolean;
-  columns: ColumnVisibility;
-  notesCollapsed: boolean;
-  toolbarExpanded: boolean;
+  viewMode: ViewMode;
+  theme: ThemeMode;
+  naturalEnglish: NaturalEnglishVersion;
+  yltDivineNames: boolean;
 }
 
 export const DEFAULT_PREFERENCES: ViewerPreferences = {
   book: "Genesis",
-  chapterStart: 1,
-  chapterEnd: 50,
-  showRefs: true,
-  showChapterHeadings: true,
-  continuousMode: false,
-  darkMode: false,
-  columns: {
-    kjv: true,
-    jps: true,
-    hebrew: true,
-    notes: true,
-  },
-  notesCollapsed: false,
-  toolbarExpanded: false,
+  viewMode: "natural",
+  theme: "dark",
+  naturalEnglish: "kjv",
+  yltDivineNames: true,
 };
+
+export interface DerivedViewState {
+  chapterStart: number;
+  chapterEnd: number;
+  continuousMode: boolean;
+  showRefs: boolean;
+  showChapterHeadings: boolean;
+  columns: ColumnVisibility;
+  notesCollapsed: boolean;
+}
+
+export function deriveViewState(
+  prefs: ViewerPreferences,
+  chapterCount: number,
+): DerivedViewState {
+  const useJps = prefs.naturalEnglish === "jps";
+  const englishColumns = {
+    kjv: !useJps,
+    jps: useJps,
+    ylt: true,
+  };
+
+  if (prefs.viewMode === "natural") {
+    return {
+      chapterStart: 1,
+      chapterEnd: chapterCount,
+      continuousMode: true,
+      showRefs: false,
+      showChapterHeadings: false,
+      columns: {
+        ...englishColumns,
+        hebrew: false,
+        notes: false,
+      },
+      notesCollapsed: false,
+    };
+  }
+
+  return {
+    chapterStart: 1,
+    chapterEnd: chapterCount,
+    continuousMode: false,
+    showRefs: true,
+    showChapterHeadings: true,
+    columns: {
+      ...englishColumns,
+      hebrew: true,
+      notes: true,
+    },
+    notesCollapsed: false,
+  };
+}

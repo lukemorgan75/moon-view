@@ -1,18 +1,12 @@
 import { useEffect } from "react";
-import type { FigureBundle, FigureLookupResult } from "../api/figures";
-import { FigureSenseLayers } from "./FigureSenseLayers";
 import type { StrongsEntry } from "../api/strongs";
-import { StrongsDetailsTable } from "./StrongsDetailsTable";
 import type { StrongOccurrence, StrongsSelection } from "../types";
-import { figureDictionaryHref } from "../utils/figure-routing";
 import { locationKey } from "../utils/strongs-occurrences";
 
 interface StrongsPaneProps {
   book: string;
   selection: StrongsSelection;
   entry: StrongsEntry | null;
-  figureMatches?: FigureLookupResult[];
-  figureBundle?: FigureBundle | null;
   occurrences: StrongOccurrence[];
   onSelectOccurrence: (
     strong: string,
@@ -25,8 +19,6 @@ export function StrongsPane({
   book,
   selection,
   entry,
-  figureMatches = [],
-  figureBundle = null,
   occurrences,
   onSelectOccurrence,
   onClose,
@@ -80,50 +72,6 @@ export function StrongsPane({
             <p className="strongs-def">Definition not found.</p>
           )}
         </section>
-
-        {figureMatches.length > 0 && (
-          <section className="strongs-pane-section strongs-pane-figures">
-            <h3 className="strongs-pane-subtitle">Figure dictionary</h3>
-            <ul className="figure-match-list">
-              {figureMatches.map((match) => (
-                <li key={match.entry.id} className="figure-match-item">
-                  <a
-                    className="figure-match-link"
-                    href={figureDictionaryHref(match.entry.id, book)}
-                  >
-                    {match.entry.label}
-                  </a>
-                  <span className="figure-match-role">{match.entry.role}</span>
-                  {match.entry.strongs_details &&
-                    match.entry.strongs_details.length > 0 && (
-                      <StrongsDetailsTable
-                        details={match.entry.strongs_details}
-                        compact
-                      />
-                    )}
-                  {figureBundle && (
-                    <FigureSenseLayers
-                      entry={match.entry}
-                      bundle={figureBundle}
-                      book={book}
-                      compact
-                    />
-                  )}
-                  {match.ancestors.length > 0 && (
-                    <p className="figure-match-path">
-                      {match.ancestors
-                        .slice()
-                        .reverse()
-                        .map((a) => a.label)
-                        .join(" → ")}{" "}
-                      → {match.entry.label}
-                    </p>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
 
         <section className="strongs-pane-section">
           <h3 className="strongs-pane-subtitle">

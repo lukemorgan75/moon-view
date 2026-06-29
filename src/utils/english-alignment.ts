@@ -12,7 +12,7 @@ export interface EnglishToken {
   wordIndex?: number;
 }
 
-export type AlignableEnglishVersion = Extract<EnglishVersion, "jps" | "kjv">;
+export type AlignableEnglishVersion = Extract<EnglishVersion, "ylt" | "kjv">;
 
 const STOPWORDS = new Set([
   "a",
@@ -333,8 +333,8 @@ export function buildEnglishAlignments(
   sourceLang: SourceLanguage,
 ): Partial<Record<AlignableEnglishVersion, number[][]>> {
   const result: Partial<Record<AlignableEnglishVersion, number[][]>> = {};
-  if (english.jps) {
-    result.jps = alignMorphToEnglish(morph, english.jps, strongs, sourceLang, "jps");
+  if (english.ylt) {
+    result.ylt = alignMorphToEnglish(morph, english.ylt, strongs, sourceLang, "ylt");
   }
   if (english.kjv) {
     result.kjv = alignMorphToEnglish(morph, english.kjv, strongs, sourceLang, "kjv");
