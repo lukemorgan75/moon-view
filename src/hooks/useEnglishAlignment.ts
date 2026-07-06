@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import type { SourceLanguage } from "../api/book-meta";
 import { loadStrongsDictionaries } from "../api/strongs";
-import type { AlignableEnglishVersion } from "../utils/english-alignment";
+import type {
+  AlignableEnglishVersion,
+  EnglishAlignmentOptions,
+} from "../utils/english-alignment";
 import { buildEnglishAlignments } from "../utils/english-alignment";
 import type { VerseRow } from "../types";
 
@@ -18,6 +21,7 @@ export function useEnglishAlignment(
   verses: VerseRow[],
   sourceLang: SourceLanguage,
   enabled: boolean,
+  options: EnglishAlignmentOptions = {},
 ): VerseAlignMap {
   const [alignMap, setAlignMap] = useState<VerseAlignMap>(() => new Map());
 
@@ -75,6 +79,7 @@ export function useEnglishAlignment(
             row.english,
             strongs,
             sourceLang,
+            options,
           );
           if (!align.ylt && !align.kjv) continue;
           batch.set(verseAlignKey(row.ref.chapter, row.ref.verse), align);
@@ -94,7 +99,13 @@ export function useEnglishAlignment(
       cancelled = true;
       cancel();
     };
-  }, [versesKey, sourceLang, enabled]);
+  }, [
+    versesKey,
+    sourceLang,
+    enabled,
+    options.naturalYltPlain,
+    options.yltDivineNames,
+  ]);
 
   return alignMap;
 }

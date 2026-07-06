@@ -3,6 +3,7 @@ import type { SourceLanguage } from "../api/book-meta";
 import type { MorphWord } from "../types";
 import { stripHtml } from "../utils/html";
 import { transliterateVerse } from "../utils/transliterate";
+import { yltRootHighlightClassFromStrong } from "../utils/ylt-root-highlights";
 
 interface HebrewCellProps {
   text: string;
@@ -34,17 +35,31 @@ export const HebrewCell = memo(function HebrewCell({
   const canClick =
     clickable && !continuous && !!morph?.length && !!verseRef && !!onWordSelect;
 
+  const fallback = useMemo(() => stripHtml(text), [text]);
+  const translit = useMemo(
+    () => (isGreek ? "" : transliterateVerse(text)),
+    [text, isGreek],
+  );
+
   if (canClick && morph && verseRef) {
     return (
       <div
         className={`hebrew-cell hebrew-cell--clickable ${isGreek ? "hebrew-cell--greek" : ""}`}
       >
         <div className="hebrew-line" dir={textDir} lang={textLang}>
-          {morph.map((word, index) => (
+          {morph.map((word, index) => {
+            const rootClass = yltRootHighlightClassFromStrong(word.s);
+            return (
             <button
               key={`he-${index}`}
               type="button"
-              className="morph-word morph-word--hebrew"
+              className={[
+                "morph-word",
+                "morph-word--hebrew",
+                rootClass ?? "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
               data-strong={word.s}
               data-chapter={verseRef.chapter}
               data-verse={verseRef.verse}
@@ -62,14 +77,23 @@ export const HebrewCell = memo(function HebrewCell({
             >
               {word.t}
             </button>
-          ))}
+            );
+          })}
         </div>
         <div className="translit-line" dir="ltr">
-          {morph.map((word, index) => (
+          {morph.map((word, index) => {
+            const rootClass = yltRootHighlightClassFromStrong(word.s);
+            return (
             <button
               key={`tr-${index}`}
               type="button"
-              className="morph-word morph-word--translit"
+              className={[
+                "morph-word",
+                "morph-word--translit",
+                rootClass ?? "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
               data-strong={word.s}
               data-chapter={verseRef.chapter}
               data-verse={verseRef.verse}
@@ -86,17 +110,12 @@ export const HebrewCell = memo(function HebrewCell({
             >
               {word.tr ?? word.t}
             </button>
-          ))}
+            );
+          })}
         </div>
       </div>
     );
   }
-
-  const fallback = useMemo(() => stripHtml(text), [text]);
-  const translit = useMemo(
-    () => (isGreek ? "" : transliterateVerse(text)),
-    [text, isGreek],
-  );
 
   return (
     <div

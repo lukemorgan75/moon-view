@@ -975,6 +975,57 @@ body {
   font-size: 0.92em;
 }
 
+.ylt-root--bara,
+.ylt-root--asah,
+.ylt-root--toledot,
+.ylt-root--qadash {
+  border-radius: 3px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0.08em 0.14em;
+  margin: -0.08em -0.14em;
+}
+
+.ylt-root--bara {
+  background: color-mix(in srgb, #a98fd9 46%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #8b6fc9 42%, transparent);
+}
+
+.ylt-root--asah {
+  background: color-mix(in srgb, #4a9eff 40%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #4a9eff 52%, transparent);
+}
+
+.ylt-root--toledot {
+  background: color-mix(in srgb, #e85d5d 40%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #d04545 50%, transparent);
+}
+
+.ylt-root--qadash {
+  background: color-mix(in srgb, #ff9f43 42%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #e8872a 50%, transparent);
+}
+
+.english-word--clickable.ylt-root--bara {
+  background: color-mix(in srgb, #a98fd9 46%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #8b6fc9 42%, transparent);
+}
+
+.english-word--clickable.ylt-root--asah {
+  background: color-mix(in srgb, #4a9eff 40%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #4a9eff 52%, transparent);
+}
+
+.english-word--clickable.ylt-root--toledot {
+  background: color-mix(in srgb, #e85d5d 40%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #d04545 50%, transparent);
+}
+
+.english-word--clickable.ylt-root--qadash {
+  background: color-mix(in srgb, #ff9f43 42%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #e8872a 50%, transparent);
+}
+
 .hebrew-cell--continuous .hebrew-line {
   display: inline;
   margin: 0;
@@ -1034,6 +1085,59 @@ body {
 .morph-word--translit {
   font-size: 0.8125rem;
   color: var(--translit-color);
+}
+
+.morph-word.ylt-root--bara,
+.morph-word.ylt-root--asah,
+.morph-word.ylt-root--toledot,
+.morph-word.ylt-root--qadash {
+  border-radius: 3px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.morph-word--hebrew.ylt-root--bara {
+  background: color-mix(in srgb, #a98fd9 46%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #8b6fc9 42%, transparent);
+}
+
+.morph-word--hebrew.ylt-root--asah {
+  background: color-mix(in srgb, #4a9eff 40%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #4a9eff 52%, transparent);
+}
+
+.morph-word--hebrew.ylt-root--toledot {
+  background: color-mix(in srgb, #e85d5d 40%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #d04545 50%, transparent);
+}
+
+.morph-word--hebrew.ylt-root--qadash {
+  background: color-mix(in srgb, #ff9f43 42%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #e8872a 50%, transparent);
+}
+
+.morph-word--translit.ylt-root--bara {
+  background: color-mix(in srgb, #a98fd9 38%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #8b6fc9 36%, transparent);
+  color: color-mix(in srgb, var(--translit-color) 72%, #5b4a78);
+}
+
+.morph-word--translit.ylt-root--asah {
+  background: color-mix(in srgb, #4a9eff 34%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #4a9eff 44%, transparent);
+  color: color-mix(in srgb, var(--translit-color) 72%, #2f5f99);
+}
+
+.morph-word--translit.ylt-root--toledot {
+  background: color-mix(in srgb, #e85d5d 34%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #d04545 42%, transparent);
+  color: color-mix(in srgb, var(--translit-color) 72%, #8f3f3f);
+}
+
+.morph-word--translit.ylt-root--qadash {
+  background: color-mix(in srgb, #ff9f43 36%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #e8872a 44%, transparent);
+  color: color-mix(in srgb, var(--translit-color) 72%, #8f5e28);
 }
 
 .morph-word:hover {
@@ -1515,6 +1619,30 @@ body {
   margin-top: 0.85rem !important;
   color: var(--muted);
   font-size: 0.9375rem;
+}
+
+.info-root-legend {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.info-root-legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.info-root-legend span {
+  display: inline-block;
+  min-width: 5.5rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 3px;
+  font-weight: 600;
+  text-align: center;
 }
 
 .info-table-wrap {

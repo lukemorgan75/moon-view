@@ -1,12 +1,14 @@
 import { memo } from "react";
 import { YltRichText } from "./YltRichText";
 import type { AlignableEnglishVersion } from "../utils/english-alignment";
-import type { MorphWord, VerseRef, WordLocation } from "../types";
+import type { MorphWord, VerseRef, ViewMode, WordLocation } from "../types";
 import {
   hebrewIndicesForEnglishIndex,
   strongsForEnglishIndex,
   tokenizeEnglishVerse,
 } from "../utils/english-alignment";
+import { formatYltPlain } from "../utils/ylt-format";
+import { yltRootHighlightClass } from "../utils/ylt-root-highlights";
 
 interface EnglishVerseCellProps {
   text: string;
@@ -14,6 +16,9 @@ interface EnglishVerseCellProps {
   verseRef: VerseRef;
   morph?: MorphWord[];
   align?: number[][];
+  viewMode?: ViewMode;
+  yltDivineNames?: boolean;
+  yltRaw?: string;
   yltRichText?: boolean;
   onWordSelect?: (
     strong: string,
@@ -34,7 +39,10 @@ function englishCellsEqual(
     prev.verseRef.chapter === next.verseRef.chapter &&
     prev.verseRef.verse === next.verseRef.verse &&
     prev.onWordSelect === next.onWordSelect &&
-    prev.yltRichText === next.yltRichText
+    prev.yltRichText === next.yltRichText &&
+    prev.viewMode === next.viewMode &&
+    prev.yltDivineNames === next.yltDivineNames &&
+    prev.yltRaw === next.yltRaw
   );
 }
 
@@ -44,12 +52,18 @@ export const EnglishVerseCell = memo(function EnglishVerseCell({
   verseRef,
   morph,
   align,
+  viewMode = "analytic",
+  yltDivineNames = false,
+  yltRaw,
   yltRichText = false,
   onWordSelect,
 }: EnglishVerseCellProps) {
   if (!text) return null;
 
-  if (version === "ylt" && yltRichText) {
+  const canHighlightYlt =
+    version === "ylt" && !!morph?.length && !!align?.length && !!yltRaw;
+
+  if (version === "ylt" && yltRichText && !canHighlightYlt) {
     return <YltRichText html={text} />;
   }
 
@@ -61,7 +75,12 @@ export const EnglishVerseCell = memo(function EnglishVerseCell({
     return <>{text}</>;
   }
 
-  const tokens = tokenizeEnglishVerse(text);
+  const tokenizeSource =
+    version === "ylt" && yltRaw
+      ? formatYltPlain(yltRaw, viewMode, { divineNames: yltDivineNames })
+      : text;
+
+  const tokens = tokenizeEnglishVerse(tokenizeSource);
   const clickable = !!onWordSelect;
 
   return (
@@ -83,10 +102,14 @@ export const EnglishVerseCell = memo(function EnglishVerseCell({
         const isClickable =
           clickable && hebrewIndices.length > 0 && alignedStrongs.length > 0;
 
+        const rootClass =
+          version === "ylt" ? yltRootHighlightClass(alignedStrongs) : null;
+
         const className = [
           "english-word",
           `english-word--${version}`,
           isClickable ? "english-word--clickable" : "",
+          rootClass ?? "",
         ]
           .filter(Boolean)
           .join(" ");

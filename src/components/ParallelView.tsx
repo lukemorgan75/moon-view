@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useScrollToPinnedVerse } from "../hooks/useScrollToPinnedVerse";
+import { englishText } from "../api/bible";
 import { getBookMeta, sourceLanguageLabel } from "../api/book-meta";
 import {
   activeEnglishVersions,
@@ -23,7 +24,9 @@ import { verseDomId } from "../utils/strongs-occurrences";
 import { EnglishVerseCell } from "./EnglishVerseCell";
 import { HebrewCell } from "./HebrewCell";
 import { StrongsPane } from "./StrongsPane";
+import { YltRootHighlightText } from "./YltRootHighlightText";
 import { YltRichText } from "./YltRichText";
+import type { VerseAlignMap } from "../hooks/useEnglishAlignment";
 
 
 interface ParallelViewProps {
@@ -211,6 +214,13 @@ function EnglishCells({
               verseRef={verseRow.ref}
               morph={verseRow.morph}
               align={verseAlign?.[version as AlignableEnglishVersion]}
+              viewMode={viewMode}
+              yltDivineNames={yltDivineNames}
+              yltRaw={
+                version === "ylt"
+                  ? englishText(verseRow, "ylt")
+                  : undefined
+              }
               yltRichText={version === "ylt" && yltDivineNames}
               onWordSelect={onWordSelect}
             />
@@ -290,6 +300,7 @@ function ContinuousProseColumn({
   hoveredVerse,
   pinnedVerse,
   scrollTarget,
+  yltRootAlign,
 }: {
   verses: VerseRow[];
   version: EnglishVersion;
@@ -298,10 +309,14 @@ function ContinuousProseColumn({
   hoveredVerse: string | null;
   pinnedVerse: string | null;
   scrollTarget: boolean;
+  yltRootAlign?: VerseAlignMap;
 }) {
+  const useYltRootHighlights = version === "ylt";
+
   const rendered = verses
     .map((row) => ({
       key: verseKey(row.ref.chapter, row.ref.verse),
+      row,
       text: displayEnglish(row, version, viewMode, yltDivineNames),
     }))
     .filter((entry) => entry.text);
@@ -317,8 +332,13 @@ function ContinuousProseColumn({
           data-verse-key={entry.key}
           className={proseVerseClassName(entry.key, hoveredVerse, pinnedVerse)}
         >
-          {version === "ylt" && yltDivineNames ? (
-            <YltRichText html={entry.text} />
+          {useYltRootHighlights ? (
+            <YltRootHighlightText
+              row={entry.row}
+              align={yltRootAlign?.get(entry.key)?.ylt}
+              yltDivineNames={yltDivineNames}
+              viewMode={viewMode}
+            />
           ) : (
             entry.text
           )}
@@ -337,6 +357,7 @@ function ContinuousProse({
   gridTemplate,
   pinnedVerse,
   onTogglePinnedVerse,
+  yltRootAlign,
 }: {
   verses: VerseRow[];
   viewMode: ViewerPreferences["viewMode"];
@@ -345,6 +366,7 @@ function ContinuousProse({
   gridTemplate: string;
   pinnedVerse: string | null;
   onTogglePinnedVerse: (verseKey: string) => void;
+  yltRootAlign?: VerseAlignMap;
 }) {
   const [hoveredVerse, setHoveredVerse] = useState<string | null>(null);
 
@@ -377,6 +399,7 @@ function ContinuousProse({
           hoveredVerse={hoveredVerse}
           pinnedVerse={pinnedVerse}
           scrollTarget={columnIndex === 0}
+          yltRootAlign={yltRootAlign}
         />
       ))}
     </div>
@@ -404,7 +427,19 @@ export function ParallelView({
     (view.columns.kjv || view.columns.ylt) &&
     !view.continuousMode;
 
+  const yltRootAlignEnabled = view.continuousMode && view.columns.ylt;
+
   const alignMap = useEnglishAlignment(verses, sourceLang, englishAlignEnabled);
+
+  const yltRootAlign = useEnglishAlignment(
+    verses,
+    sourceLang,
+    yltRootAlignEnabled,
+    {
+      naturalYltPlain: prefs.viewMode === "natural",
+      yltDivineNames: prefs.yltDivineNames,
+    },
+  );
 
   const {
     selection,
@@ -488,6 +523,7 @@ export function ParallelView({
       gridTemplate={displayGridTemplate}
       pinnedVerse={pinnedVerse}
       onTogglePinnedVerse={togglePinnedVerse}
+      yltRootAlign={yltRootAlign}
     />
   ) : (
     <>

@@ -5,6 +5,7 @@ import {
   type StrongsEntry,
 } from "../api/strongs";
 import type { EnglishVersion, MorphWord } from "../types";
+import { formatYltPlain } from "./ylt-format";
 
 export interface EnglishToken {
   type: "word" | "space" | "punct";
@@ -326,15 +327,32 @@ export function strongsForEnglishIndex(
   return [...strongs];
 }
 
+export interface EnglishAlignmentOptions {
+  naturalYltPlain?: boolean;
+  yltDivineNames?: boolean;
+}
+
 export function buildEnglishAlignments(
   morph: MorphWord[],
   english: Partial<Record<EnglishVersion, string>>,
   strongs: StrongsDictionaries,
   sourceLang: SourceLanguage,
+  options: EnglishAlignmentOptions = {},
 ): Partial<Record<AlignableEnglishVersion, number[][]>> {
   const result: Partial<Record<AlignableEnglishVersion, number[][]>> = {};
   if (english.ylt) {
-    result.ylt = alignMorphToEnglish(morph, english.ylt, strongs, sourceLang, "ylt");
+    const yltText = options.naturalYltPlain
+      ? formatYltPlain(english.ylt, "natural", {
+          divineNames: options.yltDivineNames ?? false,
+        })
+      : english.ylt;
+    result.ylt = alignMorphToEnglish(
+      morph,
+      yltText,
+      strongs,
+      sourceLang,
+      "ylt",
+    );
   }
   if (english.kjv) {
     result.kjv = alignMorphToEnglish(morph, english.kjv, strongs, sourceLang, "kjv");

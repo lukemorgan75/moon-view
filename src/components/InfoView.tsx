@@ -36,6 +36,35 @@ export function InfoView() {
         </section>
 
         <section className="info-section">
+          <h2>Root Highlights</h2>
+          <p>
+            Selected Hebrew roots are shaded across Hebrew, transliteration, and
+            YLT columns so you can track key words through the text. Highlights
+            are driven by Strong&apos;s numbers, not manual markup.
+          </p>
+          <ul className="info-root-legend">
+            <li>
+              <span className="ylt-root--bara">bara</span> — create (H1254)
+            </li>
+            <li>
+              <span className="ylt-root--asah">asah</span> — make, do (H6213)
+            </li>
+            <li>
+              <span className="ylt-root--toledot">toledot</span> — generations
+              (H8435)
+            </li>
+            <li>
+              <span className="ylt-root--qadash">qadash</span> — sanctify (H6942)
+            </li>
+          </ul>
+          <p className="info-section-footnote">
+            In natural mode, highlights appear in the YLT prose column. In
+            analytic mode, they appear on aligned YLT words and matching Hebrew
+            morph tokens.
+          </p>
+        </section>
+
+        <section className="info-section">
           <h2>God Names (YLT)</h2>
           <p>
             With <strong>God Names</strong> selected in the toolbar, Young&apos;s
