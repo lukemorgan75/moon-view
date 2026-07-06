@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { loadParallelVerses } from "./api/bible";
 import { getBookMeta } from "./api/book-meta";
-import { loadStrongsDictionary } from "./api/strongs";
+import { loadHebrewNameDictionary } from "./api/hebrew-names";
+import { loadStrongsDictionaries } from "./api/strongs";
 import { ParallelView } from "./components/ParallelView";
 import { Toolbar } from "./components/Toolbar";
 import { useHeaderOffset } from "./hooks/useHeaderOffset";
@@ -20,11 +21,12 @@ function App() {
   const view = useMemo(() => {
     const { chapters } = getBookMeta(prefs.book);
     return deriveViewState(prefs, chapters);
-  }, [prefs]);
+  }, [prefs.book, prefs.viewMode, prefs.naturalEnglish]);
 
   useEffect(() => {
     if (prefs.viewMode === "analytic") {
-      loadStrongsDictionary().catch(() => {});
+      loadStrongsDictionaries().catch(() => {});
+      loadHebrewNameDictionary().catch(() => {});
     }
   }, [prefs.viewMode]);
 
@@ -33,12 +35,15 @@ function App() {
     setLoading(true);
     setError(null);
 
+    const { chapters } = getBookMeta(prefs.book);
+    const viewState = deriveViewState(prefs, chapters);
+
     try {
       const rows = await loadParallelVerses(
         prefs.book,
-        view.chapterStart,
-        view.chapterEnd,
-        view.columns,
+        viewState.chapterStart,
+        viewState.chapterEnd,
+        viewState.columns,
       );
       if (generation !== loadGen.current) return;
       setVerses(rows);
@@ -49,7 +54,7 @@ function App() {
     } finally {
       if (generation === loadGen.current) setLoading(false);
     }
-  }, [prefs.book, view]);
+  }, [prefs.book, prefs.viewMode, prefs.naturalEnglish]);
 
   useEffect(() => {
     loadText();
@@ -74,6 +79,7 @@ function App() {
             view={view}
             notes={notes}
             onNoteChange={setNote}
+            contentReady={!loading}
           />
         )}
       </main>

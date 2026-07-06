@@ -37,6 +37,22 @@ export interface StrongsSelection {
   sourceLang: "hebrew" | "greek";
 }
 
+export interface HebrewNameSelection {
+  strong: string;
+  active: WordLocation;
+}
+
+export interface WordSelectOptions {
+  morphTag?: string;
+  englishWord?: string;
+}
+
+export type WordSelectHandler = (
+  strong: string,
+  location: WordLocation,
+  options?: WordSelectOptions,
+) => void;
+
 export interface VerseRow {
   ref: VerseRef;
   hebrew: string;
@@ -54,6 +70,7 @@ export interface ColumnVisibility {
 
 export interface ViewerPreferences {
   book: string;
+  chapter: number;
   viewMode: ViewMode;
   theme: ThemeMode;
   naturalEnglish: NaturalEnglishVersion;
@@ -62,6 +79,7 @@ export interface ViewerPreferences {
 
 export const DEFAULT_PREFERENCES: ViewerPreferences = {
   book: "Genesis",
+  chapter: 1,
   viewMode: "natural",
   theme: "dark",
   naturalEnglish: "kjv",
@@ -88,7 +106,6 @@ export function deriveViewState(
     jps: useJps,
     ylt: true,
   };
-
   if (prefs.viewMode === "natural") {
     return {
       chapterStart: 1,

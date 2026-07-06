@@ -1,14 +1,12 @@
 import { memo } from "react";
 import { YltRichText } from "./YltRichText";
 import type { AlignableEnglishVersion } from "../utils/english-alignment";
-import type { MorphWord, VerseRef, ViewMode, WordLocation } from "../types";
+import type { MorphWord, VerseRef, WordSelectHandler } from "../types";
 import {
   hebrewIndicesForEnglishIndex,
   strongsForEnglishIndex,
   tokenizeEnglishVerse,
 } from "../utils/english-alignment";
-import { formatYltPlain } from "../utils/ylt-format";
-import { yltRootHighlightClass } from "../utils/ylt-root-highlights";
 
 interface EnglishVerseCellProps {
   text: string;
@@ -16,15 +14,8 @@ interface EnglishVerseCellProps {
   verseRef: VerseRef;
   morph?: MorphWord[];
   align?: number[][];
-  viewMode?: ViewMode;
-  yltDivineNames?: boolean;
-  yltRaw?: string;
   yltRichText?: boolean;
-  onWordSelect?: (
-    strong: string,
-    location: WordLocation,
-    englishWord?: string,
-  ) => void;
+  onWordSelect?: WordSelectHandler;
 }
 
 function englishCellsEqual(
@@ -39,10 +30,7 @@ function englishCellsEqual(
     prev.verseRef.chapter === next.verseRef.chapter &&
     prev.verseRef.verse === next.verseRef.verse &&
     prev.onWordSelect === next.onWordSelect &&
-    prev.yltRichText === next.yltRichText &&
-    prev.viewMode === next.viewMode &&
-    prev.yltDivineNames === next.yltDivineNames &&
-    prev.yltRaw === next.yltRaw
+    prev.yltRichText === next.yltRichText
   );
 }
 
@@ -52,18 +40,12 @@ export const EnglishVerseCell = memo(function EnglishVerseCell({
   verseRef,
   morph,
   align,
-  viewMode = "analytic",
-  yltDivineNames = false,
-  yltRaw,
   yltRichText = false,
   onWordSelect,
 }: EnglishVerseCellProps) {
   if (!text) return null;
 
-  const canHighlightYlt =
-    version === "ylt" && !!morph?.length && !!align?.length && !!yltRaw;
-
-  if (version === "ylt" && yltRichText && !canHighlightYlt) {
+  if (version === "ylt" && yltRichText) {
     return <YltRichText html={text} />;
   }
 
@@ -75,12 +57,7 @@ export const EnglishVerseCell = memo(function EnglishVerseCell({
     return <>{text}</>;
   }
 
-  const tokenizeSource =
-    version === "ylt" && yltRaw
-      ? formatYltPlain(yltRaw, viewMode, { divineNames: yltDivineNames })
-      : text;
-
-  const tokens = tokenizeEnglishVerse(tokenizeSource);
+  const tokens = tokenizeEnglishVerse(text);
   const clickable = !!onWordSelect;
 
   return (
@@ -102,14 +79,10 @@ export const EnglishVerseCell = memo(function EnglishVerseCell({
         const isClickable =
           clickable && hebrewIndices.length > 0 && alignedStrongs.length > 0;
 
-        const rootClass =
-          version === "ylt" ? yltRootHighlightClass(alignedStrongs) : null;
-
         const className = [
           "english-word",
           `english-word--${version}`,
           isClickable ? "english-word--clickable" : "",
-          rootClass ?? "",
         ]
           .filter(Boolean)
           .join(" ");
@@ -125,6 +98,7 @@ export const EnglishVerseCell = memo(function EnglishVerseCell({
         };
 
         if (isClickable) {
+          const morphWord = morph[hebrewIndices[0]];
           return (
             <button
               key={index}
@@ -138,7 +112,10 @@ export const EnglishVerseCell = memo(function EnglishVerseCell({
                     verse: verseRef.verse,
                     wordIndex: hebrewIndices[0],
                   },
-                  token.text,
+                  {
+                    englishWord: token.text,
+                    morphTag: morphWord?.m,
+                  },
                 )
               }
             >

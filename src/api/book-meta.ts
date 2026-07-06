@@ -52,3 +52,10 @@ export function sourceLanguageLabel(book: string): string {
 export function isTorahBook(book: string): boolean {
   return book in BOOK_CATALOG;
 }
+
+export function clampChapter(book: string, chapter: number): number {
+  const { chapters } = getBookMeta(book);
+  const value = Math.floor(chapter);
+  if (!Number.isFinite(value) || value < 1) return 1;
+  return Math.min(value, chapters);
+}

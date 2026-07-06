@@ -37,20 +37,6 @@ const DIVINE_PRE_MAP: ReadonlyArray<readonly [RegExp, string]> = [
   [/\bLord\b/g, "Adonai"],
 ];
 
-const DIVINE_CAPITALIZE: ReadonlyArray<readonly [RegExp, string]> = [
-  [/\byhwh yireh\b/gi, "YHWH Yireh"],
-  [/\byhwh elohim\b/gi, "YHWH Elohim"],
-  [/\badonai yhwh\b/gi, "Adonai YHWH"],
-  [/\badonai elohim\b/gi, "Adonai Elohim"],
-  [/\bel elyon\b/gi, "El Elyon"],
-  [/\bel shaddai\b/gi, "El Shaddai"],
-  [/\bel olam\b/gi, "El Olam"],
-  [/\bel roi\b/gi, "El Roi"],
-  [/\byhwh('s)?\b/gi, "YHWH$1"],
-  [/\belohim('s)?\b/gi, "Elohim$1"],
-  [/\badonai('s)?\b/gi, "Adonai$1"],
-];
-
 /** Human-readable map of Genesis divine-name substitutions (YLT → display). */
 export const GENESIS_DIVINE_NAME_MAP: ReadonlyArray<{
   name: string;
@@ -145,62 +131,27 @@ function markDivineNames(text: string): {
   return { text: out, replacements };
 }
 
-function capitalizeDivineTitles(text: string): string {
-  let out = text;
-  for (const [pattern, replacement] of DIVINE_CAPITALIZE) {
-    out = out.replace(pattern, replacement);
-  }
-  return out;
-}
-
-function transformOutsidePlaceholders(
-  text: string,
-  transform: (segment: string) => string,
-): string {
-  const pattern = placeholderPattern();
-  let result = "";
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
-
-  while ((match = pattern.exec(text)) !== null) {
-    result += transform(text.slice(lastIndex, match.index));
-    result += match[0];
-    lastIndex = match.index + match[0].length;
-  }
-
-  result += transform(text.slice(lastIndex));
-  return result;
-}
-
 function renderPlaceholders(
   text: string,
   replacements: DivineReplacement[],
-  options: { lowercaseDisplay: boolean },
 ): string {
   return text.replace(placeholderPattern(), (_match, indexText) => {
     const entry = replacements[Number(indexText)];
     if (!entry) return "";
 
-    const title = options.lowercaseDisplay
-      ? capitalizeDivineTitles(entry.display.toLowerCase())
-      : entry.display;
-
-    return `<strong class="ylt-divine-name">${title}</strong> <span class="ylt-divine-gloss">(${entry.original})</span>`;
+    return `<strong class="ylt-divine-name">${entry.display}</strong> <span class="ylt-divine-gloss">(${entry.original})</span>`;
   });
 }
 
 function plainFromPlaceholders(
   text: string,
   replacements: DivineReplacement[],
-  options: { lowercaseDisplay: boolean },
 ): string {
   return text.replace(placeholderPattern(), (_match, indexText) => {
     const entry = replacements[Number(indexText)];
     if (!entry) return "";
 
-    return options.lowercaseDisplay
-      ? capitalizeDivineTitles(entry.display.toLowerCase())
-      : entry.display;
+    return entry.display;
   });
 }
 
@@ -208,88 +159,30 @@ export interface YltFormatOptions {
   divineNames: boolean;
 }
 
-function markYltDivinePhrases(text: string): {
-  text: string;
-  replacements: DivineReplacement[];
-} {
-  const replacements: DivineReplacement[] = [];
-  let out = text;
-
-  for (const [pattern] of DIVINE_PRE_MAP) {
-    out = out.replace(pattern, (match) => {
-      const index = replacements.length;
-      replacements.push({ display: match, original: match });
-      return `${DIVINE_PLACEHOLDER_START}${index}${DIVINE_PLACEHOLDER_END}`;
-    });
-  }
-
-  return { text: out, replacements };
-}
-
-function restoreYltDivinePhrases(
-  text: string,
-  replacements: DivineReplacement[],
-): string {
-  return text.replace(placeholderPattern(), (_match, indexText) => {
-    const entry = replacements[Number(indexText)];
-    return entry?.original ?? "";
-  });
-}
-
-/** Original YLT wording; in natural mode, lowercase prose but keep divine titles capped. */
-function formatYltWithoutDivineNames(
-  text: string,
-  mode: "natural" | "analytic",
-): string {
-  const cleaned = cleanYltSource(text);
-  if (mode !== "natural") return cleaned;
-
-  const { text: marked, replacements } = markYltDivinePhrases(cleaned);
-  let working = transformOutsidePlaceholders(marked, (segment) =>
-    segment
-      .replace(/[`"]/g, "")
-      .replace(/[.,;:!?()[\]{}—–-]/g, " ")
-      .replace(/\s+/g, " ")
-      .toLowerCase(),
-  );
-
-  working = working.trim().replace(/\s+/g, " ");
-  return restoreYltDivinePhrases(working, replacements);
+/** Original YLT wording with source punctuation and capitalization preserved. */
+function formatYltWithoutDivineNames(text: string): string {
+  return cleanYltSource(text);
 }
 
 function formatYltCore(
   text: string,
-  mode: "natural" | "analytic",
+  _mode: "natural" | "analytic",
   options: YltFormatOptions,
 ): { html: string; plain: string } {
   if (!options.divineNames) {
-    const plain = formatYltWithoutDivineNames(text, mode);
+    const plain = formatYltWithoutDivineNames(text);
     return { html: plain, plain };
   }
 
   const { text: marked, replacements } = markDivineNames(cleanYltSource(text));
-  let working = marked;
-
-  if (mode === "natural") {
-    working = transformOutsidePlaceholders(working, (segment) =>
-      segment
-        .replace(/[`"]/g, "")
-        .replace(/[.,;:!?()[\]{}—–-]/g, " ")
-        .replace(/\s+/g, " ")
-        .toLowerCase(),
-    );
-    working = working.trim().replace(/\s+/g, " ");
-  }
-
-  const lowercaseDisplay = mode === "natural";
 
   return {
-    html: renderPlaceholders(working, replacements, { lowercaseDisplay }),
-    plain: plainFromPlaceholders(working, replacements, { lowercaseDisplay }),
+    html: renderPlaceholders(marked, replacements),
+    plain: plainFromPlaceholders(marked, replacements),
   };
 }
 
-/** Natural-mode YLT: no punctuation, no capitals except divine titles. */
+/** Natural-mode YLT: continuous narrative prose with YLT punctuation and caps. */
 export function formatYltNatural(
   text: string,
   options: YltFormatOptions = { divineNames: true },

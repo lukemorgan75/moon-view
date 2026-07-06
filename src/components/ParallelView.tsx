@@ -1,13 +1,15 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useScrollToPinnedVerse } from "../hooks/useScrollToPinnedVerse";
-import { englishText } from "../api/bible";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useReaderPlace } from "../hooks/useReaderPlace";
+import { useScrollToChapter } from "../hooks/useScrollToChapter";
 import { getBookMeta, sourceLanguageLabel } from "../api/book-meta";
 import {
   activeEnglishVersions,
   englishVersionLabel,
   englishVersionShortLabel,
 } from "../api/constants";
+import { hasHebrewNameEntry } from "../api/hebrew-names";
 import { useEnglishAlignment } from "../hooks/useEnglishAlignment";
+import { useHebrewNameSelection } from "../hooks/useHebrewNameSelection";
 import { usePinnedVerse } from "../hooks/usePinnedVerse";
 import { useReaderGrid } from "../hooks/useReaderGrid";
 import { useStrongsSelection } from "../hooks/useStrongsSelection";
@@ -16,17 +18,17 @@ import type {
   EnglishVersion,
   VerseRow,
   ViewerPreferences,
-  WordLocation,
+  WordSelectHandler,
 } from "../types";
 import type { AlignableEnglishVersion } from "../utils/english-alignment";
 import { displayEnglish, groupVersesByChapter } from "../utils/prose";
 import { verseDomId } from "../utils/strongs-occurrences";
 import { EnglishVerseCell } from "./EnglishVerseCell";
 import { HebrewCell } from "./HebrewCell";
+import { HebrewNamePane } from "./HebrewNamePane";
 import { StrongsPane } from "./StrongsPane";
-import { YltRootHighlightText } from "./YltRootHighlightText";
+import { isProperNoun } from "../utils/morph-tags";
 import { YltRichText } from "./YltRichText";
-import type { VerseAlignMap } from "../hooks/useEnglishAlignment";
 
 
 interface ParallelViewProps {
@@ -35,6 +37,7 @@ interface ParallelViewProps {
   view: DerivedViewState;
   notes: Record<string, string>;
   onNoteChange: (key: string, value: string) => void;
+  contentReady: boolean;
 }
 
 function verseKey(chapter: number, verse: number): string {
@@ -182,11 +185,7 @@ function EnglishCells({
   view: DerivedViewState;
   viewMode: ViewerPreferences["viewMode"];
   yltDivineNames: boolean;
-  onWordSelect?: (
-    strong: string,
-    location: WordLocation,
-    englishWord?: string,
-  ) => void;
+  onWordSelect?: WordSelectHandler;
   verseAlign?: Partial<Record<AlignableEnglishVersion, number[][]>>;
 }) {
   const rows = Array.isArray(row) ? row : [row];
@@ -214,13 +213,6 @@ function EnglishCells({
               verseRef={verseRow.ref}
               morph={verseRow.morph}
               align={verseAlign?.[version as AlignableEnglishVersion]}
-              viewMode={viewMode}
-              yltDivineNames={yltDivineNames}
-              yltRaw={
-                version === "ylt"
-                  ? englishText(verseRow, "ylt")
-                  : undefined
-              }
               yltRichText={version === "ylt" && yltDivineNames}
               onWordSelect={onWordSelect}
             />
@@ -300,7 +292,6 @@ function ContinuousProseColumn({
   hoveredVerse,
   pinnedVerse,
   scrollTarget,
-  yltRootAlign,
 }: {
   verses: VerseRow[];
   version: EnglishVersion;
@@ -309,21 +300,17 @@ function ContinuousProseColumn({
   hoveredVerse: string | null;
   pinnedVerse: string | null;
   scrollTarget: boolean;
-  yltRootAlign?: VerseAlignMap;
 }) {
-  const useYltRootHighlights = version === "ylt";
-
   const rendered = verses
     .map((row) => ({
       key: verseKey(row.ref.chapter, row.ref.verse),
-      row,
       text: displayEnglish(row, version, viewMode, yltDivineNames),
     }))
     .filter((entry) => entry.text);
 
   return (
     <div
-      className={`cell prose-cell ${version === "ylt" ? "text-cell--ylt" : ""}`}
+      className={`cell prose-cell prose-cell--${version}${version === "ylt" ? " text-cell--ylt" : ""}`}
     >
       {rendered.map((entry, index) => (
         <span
@@ -332,13 +319,8 @@ function ContinuousProseColumn({
           data-verse-key={entry.key}
           className={proseVerseClassName(entry.key, hoveredVerse, pinnedVerse)}
         >
-          {useYltRootHighlights ? (
-            <YltRootHighlightText
-              row={entry.row}
-              align={yltRootAlign?.get(entry.key)?.ylt}
-              yltDivineNames={yltDivineNames}
-              viewMode={viewMode}
-            />
+          {version === "ylt" && yltDivineNames ? (
+            <YltRichText html={entry.text} />
           ) : (
             entry.text
           )}
@@ -357,7 +339,6 @@ function ContinuousProse({
   gridTemplate,
   pinnedVerse,
   onTogglePinnedVerse,
-  yltRootAlign,
 }: {
   verses: VerseRow[];
   viewMode: ViewerPreferences["viewMode"];
@@ -366,7 +347,6 @@ function ContinuousProse({
   gridTemplate: string;
   pinnedVerse: string | null;
   onTogglePinnedVerse: (verseKey: string) => void;
-  yltRootAlign?: VerseAlignMap;
 }) {
   const [hoveredVerse, setHoveredVerse] = useState<string | null>(null);
 
@@ -399,7 +379,6 @@ function ContinuousProse({
           hoveredVerse={hoveredVerse}
           pinnedVerse={pinnedVerse}
           scrollTarget={columnIndex === 0}
-          yltRootAlign={yltRootAlign}
         />
       ))}
     </div>
@@ -412,6 +391,7 @@ export function ParallelView({
   view,
   notes,
   onNoteChange,
+  contentReady,
 }: ParallelViewProps) {
   const { gridTemplate, showRefs, visibleColumns } = useReaderGrid(view);
   const strongsEnabled =
@@ -427,37 +407,63 @@ export function ParallelView({
     (view.columns.kjv || view.columns.ylt) &&
     !view.continuousMode;
 
-  const yltRootAlignEnabled = view.continuousMode && view.columns.ylt;
-
   const alignMap = useEnglishAlignment(verses, sourceLang, englishAlignEnabled);
 
-  const yltRootAlign = useEnglishAlignment(
-    verses,
-    sourceLang,
-    yltRootAlignEnabled,
-    {
-      naturalYltPlain: prefs.viewMode === "natural",
-      yltDivineNames: prefs.yltDivineNames,
-    },
-  );
-
   const {
-    selection,
-    occurrences,
-    entry,
+    selection: strongsSelection,
+    occurrences: strongsOccurrences,
+    entry: strongsEntry,
     selectWord,
-    selectOccurrence,
-    clearSelection,
+    selectOccurrence: selectStrongsOccurrence,
+    clearSelection: clearStrongsSelection,
   } = useStrongsSelection(verses, prefs.book, strongsEnabled);
 
-  const handleWordSelect = useCallback(
-    (strong: string, location: WordLocation, englishWord?: string) => {
-      selectWord(strong, location, englishWord);
+  const {
+    selection: nameSelection,
+    occurrences: nameOccurrences,
+    entry: nameEntry,
+    dictionary: nameDictionary,
+    selectName,
+    selectOccurrence: selectNameOccurrence,
+    clearSelection: clearNameSelection,
+  } = useHebrewNameSelection(verses, prefs.book, strongsEnabled);
+
+  const handleWordSelect = useCallback<WordSelectHandler>(
+    (strong, location, options) => {
+      const useNamePane =
+        isProperNoun(options?.morphTag) &&
+        hasHebrewNameEntry(nameDictionary, strong);
+
+      if (useNamePane) {
+        clearStrongsSelection();
+        selectName(strong, location);
+        return;
+      }
+
+      clearNameSelection();
+      selectWord(strong, location, options?.englishWord);
     },
-    [selectWord],
+    [
+      nameDictionary,
+      clearStrongsSelection,
+      selectName,
+      clearNameSelection,
+      selectWord,
+    ],
   );
 
-  const { pinnedVerse, togglePinnedVerse } = usePinnedVerse(prefs.book);
+  const paneOpen = !!(strongsSelection || nameSelection);
+
+  const { pinnedVerse, togglePinnedVerse, pinVerse } = usePinnedVerse(
+    prefs.book,
+  );
+
+  const handleChapterSelect = useCallback(
+    (chapter: number) => {
+      pinVerse(`${chapter}:1`);
+    },
+    [pinVerse],
+  );
   const [focusedVersion, setFocusedVersion] = useState<EnglishVersion | null>(
     null,
   );
@@ -480,6 +486,7 @@ export function ParallelView({
   }, [view.continuousMode, focusedVersion, gridTemplate]);
 
   const columnFocusEnabled = view.continuousMode;
+  const columnFocusDockRef = useRef<HTMLDivElement>(null);
 
   const handleVersionFocus = useCallback((version: EnglishVersion) => {
     setFocusedVersion((current) => (current === version ? null : version));
@@ -488,6 +495,39 @@ export function ParallelView({
   const handleCollapseFocus = useCallback(() => {
     setFocusedVersion(null);
   }, []);
+
+  useEffect(() => {
+    if (!columnFocusEnabled) {
+      document.documentElement.style.removeProperty("--column-focus-dock-height");
+      return;
+    }
+
+    const dock = columnFocusDockRef.current;
+    if (!dock) return;
+
+    const update = () => {
+      document.documentElement.style.setProperty(
+        "--column-focus-dock-height",
+        `${Math.ceil(dock.getBoundingClientRect().height)}px`,
+      );
+    };
+
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(dock);
+    window.addEventListener("resize", update);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", update);
+      document.documentElement.style.removeProperty("--column-focus-dock-height");
+    };
+  }, [
+    columnFocusEnabled,
+    focusedVersion,
+    displayGridTemplate,
+    displayEnglishCols,
+  ]);
 
   useEffect(() => {
     if (!view.continuousMode) setFocusedVersion(null);
@@ -504,9 +544,33 @@ export function ParallelView({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [focusedVersion]);
 
-  useScrollToPinnedVerse(pinnedVerse, verses.length, prefs.viewMode);
+  const readerRestoreKey = [
+    prefs.viewMode,
+    prefs.naturalEnglish,
+    prefs.yltDivineNames,
+    focusedVersion ?? "all",
+  ].join(":");
 
-  const chapterGroups = groupVersesByChapter(verses);
+  useReaderPlace(
+    prefs.book,
+    verses.length,
+    readerRestoreKey,
+    pinnedVerse,
+    contentReady,
+  );
+
+  useScrollToChapter(
+    prefs.book,
+    prefs.chapter,
+    verses.length,
+    contentReady,
+    handleChapterSelect,
+  );
+
+  const chapterGroups = useMemo(
+    () => groupVersesByChapter(verses),
+    [verses],
+  );
 
   if (visibleColumns === 0) {
     return (
@@ -523,7 +587,6 @@ export function ParallelView({
       gridTemplate={displayGridTemplate}
       pinnedVerse={pinnedVerse}
       onTogglePinnedVerse={togglePinnedVerse}
-      yltRootAlign={yltRootAlign}
     />
   ) : (
     <>
@@ -600,33 +663,65 @@ export function ParallelView({
 
   return (
     <div
-      className={`reader-layout ${selection ? "reader-layout--pane-open" : ""}`}
+      className={`reader-layout ${paneOpen ? "reader-layout--pane-open" : ""}`}
     >
       <div
         className={`parallel-view ${view.continuousMode ? "parallel-view--continuous" : ""} parallel-view--${prefs.viewMode}${focusedVersion ? " parallel-view--column-focused" : ""}`}
       >
-        <ColumnHeaders
-          gridTemplate={displayGridTemplate}
-          showRefs={showRefs}
-          view={view}
-          book={prefs.book}
-          subtle={view.continuousMode}
-          englishCols={displayEnglishCols}
-          focusable={columnFocusEnabled}
-          focusedVersion={focusedVersion}
-          onVersionFocus={handleVersionFocus}
-          onCollapseFocus={handleCollapseFocus}
-        />
+        {columnFocusEnabled ? (
+          <>
+            <div className="column-focus-dock" ref={columnFocusDockRef}>
+              <div className="column-focus-dock__inner">
+                <ColumnHeaders
+                  gridTemplate={displayGridTemplate}
+                  showRefs={showRefs}
+                  view={view}
+                  book={prefs.book}
+                  subtle={view.continuousMode}
+                  englishCols={displayEnglishCols}
+                  focusable={columnFocusEnabled}
+                  focusedVersion={focusedVersion}
+                  onVersionFocus={handleVersionFocus}
+                  onCollapseFocus={handleCollapseFocus}
+                />
+              </div>
+            </div>
+            <div className="column-focus-dock-spacer" aria-hidden="true" />
+          </>
+        ) : (
+          <ColumnHeaders
+            gridTemplate={displayGridTemplate}
+            showRefs={showRefs}
+            view={view}
+            book={prefs.book}
+            subtle={view.continuousMode}
+            englishCols={displayEnglishCols}
+            focusable={columnFocusEnabled}
+            focusedVersion={focusedVersion}
+            onVersionFocus={handleVersionFocus}
+            onCollapseFocus={handleCollapseFocus}
+          />
+        )}
         {verseBody}
       </div>
-      {selection && (
+      {nameSelection && (
+        <HebrewNamePane
+          book={prefs.book}
+          selection={nameSelection}
+          entry={nameEntry}
+          occurrences={nameOccurrences}
+          onSelectOccurrence={selectNameOccurrence}
+          onClose={clearNameSelection}
+        />
+      )}
+      {strongsSelection && (
         <StrongsPane
           book={prefs.book}
-          selection={selection}
-          entry={entry}
-          occurrences={occurrences}
-          onSelectOccurrence={selectOccurrence}
-          onClose={clearSelection}
+          selection={strongsSelection}
+          entry={strongsEntry}
+          occurrences={strongsOccurrences}
+          onSelectOccurrence={selectStrongsOccurrence}
+          onClose={clearStrongsSelection}
         />
       )}
     </div>

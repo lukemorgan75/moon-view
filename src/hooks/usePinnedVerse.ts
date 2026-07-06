@@ -41,6 +41,16 @@ export function usePinnedVerse(book: string) {
     [book],
   );
 
+  const pinVerse = useCallback(
+    (verseKey: string) => {
+      setPinnedByBook((current) => {
+        if (current[book] === verseKey) return current;
+        return { ...current, [book]: verseKey };
+      });
+    },
+    [book],
+  );
+
   const clearPinnedVerse = useCallback(() => {
     setPinnedByBook((current) => {
       if (!(book in current)) return current;
@@ -50,5 +60,5 @@ export function usePinnedVerse(book: string) {
     });
   }, [book]);
 
-  return { pinnedVerse, togglePinnedVerse, clearPinnedVerse };
+  return { pinnedVerse, togglePinnedVerse, pinVerse, clearPinnedVerse };
 }

@@ -1,10 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { SourceLanguage } from "../api/book-meta";
 import { loadStrongsDictionaries } from "../api/strongs";
-import type {
-  AlignableEnglishVersion,
-  EnglishAlignmentOptions,
-} from "../utils/english-alignment";
+import type { AlignableEnglishVersion } from "../utils/english-alignment";
 import { buildEnglishAlignments } from "../utils/english-alignment";
 import type { VerseRow } from "../types";
 
@@ -21,7 +18,6 @@ export function useEnglishAlignment(
   verses: VerseRow[],
   sourceLang: SourceLanguage,
   enabled: boolean,
-  options: EnglishAlignmentOptions = {},
 ): VerseAlignMap {
   const [alignMap, setAlignMap] = useState<VerseAlignMap>(() => new Map());
 
@@ -60,16 +56,16 @@ export function useEnglishAlignment(
       if (cancelled) return;
 
       let index = 0;
-      const CHUNK = 40;
+      const CHUNK = 80;
+      const result = new Map<
+        string,
+        Partial<Record<AlignableEnglishVersion, number[][]>>
+      >();
 
       const processChunk = () => {
         if (cancelled) return;
 
         const end = Math.min(index + CHUNK, verses.length);
-        const batch = new Map<
-          string,
-          Partial<Record<AlignableEnglishVersion, number[][]>>
-        >();
 
         for (; index < end; index++) {
           const row = verses[index];
@@ -79,17 +75,17 @@ export function useEnglishAlignment(
             row.english,
             strongs,
             sourceLang,
-            options,
           );
           if (!align.ylt && !align.kjv) continue;
-          batch.set(verseAlignKey(row.ref.chapter, row.ref.verse), align);
+          result.set(verseAlignKey(row.ref.chapter, row.ref.verse), align);
         }
 
-        if (batch.size > 0) {
-          setAlignMap((prev) => new Map([...prev, ...batch]));
+        if (index < verses.length) {
+          schedule(processChunk);
+          return;
         }
 
-        if (index < verses.length) schedule(processChunk);
+        if (!cancelled) setAlignMap(result);
       };
 
       schedule(processChunk);
@@ -99,13 +95,7 @@ export function useEnglishAlignment(
       cancelled = true;
       cancel();
     };
-  }, [
-    versesKey,
-    sourceLang,
-    enabled,
-    options.naturalYltPlain,
-    options.yltDivineNames,
-  ]);
+  }, [versesKey, sourceLang, enabled]);
 
   return alignMap;
 }

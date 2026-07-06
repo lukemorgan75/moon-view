@@ -1,18 +1,11 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { getBookMeta, type SourceLanguage } from "../api/book-meta";
 import {
-  loadStrongsDictionaries,
-  lookupStrongs,
-  type StrongsDictionaries,
-  type StrongsEntry,
-} from "../api/strongs";
-import { useStrongsHighlight } from "./useStrongsHighlight";
-import type {
-  StrongOccurrence,
-  StrongsSelection,
-  VerseRow,
-  WordLocation,
-} from "../types";
+  loadHebrewNameDictionary,
+  lookupHebrewName,
+  type HebrewNameEntry,
+} from "../api/hebrew-names";
+import { useHebrewNameHighlight } from "./useHebrewNameHighlight";
+import type { HebrewNameSelection, VerseRow, WordLocation } from "../types";
 import { afterLayout } from "../utils/after-layout";
 import {
   captureReaderPlace,
@@ -24,20 +17,19 @@ import {
   scrollToVerse,
 } from "../utils/strongs-occurrences";
 
-export function useStrongsSelection(
+export function useHebrewNameSelection(
   verses: VerseRow[],
   book: string,
   enabled: boolean,
 ) {
-  const sourceLang: SourceLanguage = getBookMeta(book).sourceLanguage;
-  const [selection, setSelection] = useState<StrongsSelection | null>(null);
-  const [dictionaries, setDictionaries] = useState<StrongsDictionaries | null>(
+  const [selection, setSelection] = useState<HebrewNameSelection | null>(null);
+  const [dictionary, setDictionary] = useState<Record<string, HebrewNameEntry> | null>(
     null,
   );
   const placeBeforePaneToggleRef = useRef<ReaderPlace | null>(null);
   const paneOpenRef = useRef(false);
 
-  useStrongsHighlight(selection);
+  useHebrewNameHighlight(selection);
 
   useLayoutEffect(() => {
     const paneOpen = !!selection;
@@ -48,9 +40,7 @@ export function useStrongsSelection(
     placeBeforePaneToggleRef.current = null;
     if (!place) return;
 
-    const attemptRestore = () => restoreReaderPlace(place, null);
-
-    afterLayout(attemptRestore);
+    afterLayout(() => restoreReaderPlace(place, null));
   }, [selection]);
 
   useEffect(() => {
@@ -58,9 +48,9 @@ export function useStrongsSelection(
       setSelection(null);
       return;
     }
-    loadStrongsDictionaries()
-      .then(setDictionaries)
-      .catch(() => setDictionaries({ hebrew: {}, greek: {} }));
+    loadHebrewNameDictionary()
+      .then(setDictionary)
+      .catch(() => setDictionary({}));
   }, [enabled]);
 
   useEffect(() => {
@@ -77,21 +67,22 @@ export function useStrongsSelection(
     return occurrenceIndex.get(selection.strong) ?? [];
   }, [occurrenceIndex, selection]);
 
-  const entry = useMemo((): StrongsEntry | null => {
-    if (!selection || !dictionaries) return null;
-    return lookupStrongs(dictionaries, selection.strong, selection.sourceLang);
-  }, [selection, dictionaries]);
+  const entry = useMemo((): HebrewNameEntry | null => {
+    if (!selection || !dictionary) return null;
+    return lookupHebrewName(dictionary, selection.strong);
+  }, [selection, dictionary]);
 
-  const selectWord = useCallback(
-    (strong: string, active: WordLocation, englishWord?: string) => {
-      placeBeforePaneToggleRef.current = captureReaderPlace();
-      setSelection({ strong, active, englishWord, sourceLang });
-    },
-    [sourceLang],
-  );
+  const selectName = useCallback((strong: string, active: WordLocation) => {
+    placeBeforePaneToggleRef.current = captureReaderPlace();
+    setSelection({ strong, active });
+  }, []);
 
   const selectOccurrence = useCallback(
-    (strong: string, occurrence: StrongOccurrence) => {
+    (strong: string, occurrence: {
+      chapter: number;
+      verse: number;
+      wordIndex: number;
+    }) => {
       setSelection({
         strong,
         active: {
@@ -99,11 +90,10 @@ export function useStrongsSelection(
           verse: occurrence.verse,
           wordIndex: occurrence.wordIndex,
         },
-        sourceLang,
       });
       scrollToVerse(occurrence.chapter, occurrence.verse);
     },
-    [sourceLang],
+    [],
   );
 
   const clearSelection = useCallback(() => {
@@ -115,8 +105,8 @@ export function useStrongsSelection(
     selection,
     occurrences,
     entry,
-    sourceLang,
-    selectWord,
+    dictionary,
+    selectName,
     selectOccurrence,
     clearSelection,
   };

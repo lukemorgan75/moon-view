@@ -1,3 +1,4 @@
+import { getBookMeta } from "../api/book-meta";
 import { AVAILABLE_BOOKS } from "../api/constants";
 import type {
   NaturalEnglishVersion,
@@ -103,6 +104,8 @@ function NaturalEnglishToggle({
 }
 
 export function Toolbar({ prefs, loading, onUpdate }: ToolbarProps) {
+  const chapterCount = getBookMeta(prefs.book).chapters;
+
   return (
     <header className="toolbar toolbar--simple">
       <div className="brand-lockup">
@@ -143,21 +146,42 @@ export function Toolbar({ prefs, loading, onUpdate }: ToolbarProps) {
         </div>
       </div>
 
-      <label className="toolbar-book-field">
-        <span className="sr-only">Book of Torah</span>
-        <select
-          className="field-input field-select toolbar-book-select"
-          value={prefs.book}
-          disabled={loading}
-          onChange={(e) => onUpdate({ book: e.target.value })}
-        >
-          {AVAILABLE_BOOKS.map((book) => (
-            <option key={book} value={book}>
-              {book}
-            </option>
-          ))}
-        </select>
-      </label>
+      <div className="toolbar-nav-selects">
+        <label className="toolbar-book-field">
+          <span className="sr-only">Book of Torah</span>
+          <select
+            className="field-input field-select toolbar-book-select"
+            value={prefs.book}
+            disabled={loading}
+            onChange={(e) => onUpdate({ book: e.target.value })}
+          >
+            {AVAILABLE_BOOKS.map((book) => (
+              <option key={book} value={book}>
+                {book}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="toolbar-book-field toolbar-chapter-field">
+          <span className="sr-only">Chapter</span>
+          <select
+            className="field-input field-select toolbar-chapter-select"
+            value={prefs.chapter}
+            disabled={loading}
+            aria-label={`Chapter (1–${chapterCount})`}
+            onChange={(e) => onUpdate({ chapter: Number(e.target.value) })}
+          >
+            {Array.from({ length: chapterCount }, (_, index) => index + 1).map(
+              (chapter) => (
+                <option key={chapter} value={chapter}>
+                  {chapter}
+                </option>
+              ),
+            )}
+          </select>
+        </label>
+      </div>
 
       <ModeToggle
         viewMode={prefs.viewMode}

@@ -1,6 +1,9 @@
-import { YLT_DIVINE_SUBSTITUTION_KEY } from "../utils/ylt-format";
+import { usePageScrollMemory } from "../hooks/usePageScrollMemory";
+
+const INFO_SCROLL_KEY = "moon-view-info-scroll";
 
 export function InfoView() {
+  usePageScrollMemory(INFO_SCROLL_KEY);
   return (
     <div className="secondary-page info-page">
       <header className="secondary-page-header">
@@ -18,9 +21,11 @@ export function InfoView() {
           <p>
             A parallel Torah reader — Genesis through Deuteronomy — with two
             ways to read. Natural mode lays each book out as continuous prose:
-            no verse numbers, no chapter breaks. Analytic mode gives you
+            no verse numbers, no chapter breaks, with YLT punctuation and
+            capitalization preserved. Analytic mode gives you
             verse-by-verse rows with references, Hebrew and transliteration,
-            per-verse notes, and word-level Strong&apos;s lookup.
+            per-verse notes, word-level Strong&apos;s lookup, and a Hebrew name
+            dictionary for people, places, and other proper names.
           </p>
           <p>
             Choose KJV or JPS as your English column in either mode; YLT runs
@@ -36,71 +41,19 @@ export function InfoView() {
         </section>
 
         <section className="info-section">
-          <h2>Root Highlights</h2>
+          <h2>
+            <a className="info-section-link" href="#god-names">
+              God Names (YLT)
+            </a>
+          </h2>
           <p>
-            Selected Hebrew roots are shaded across Hebrew, transliteration, and
-            YLT columns so you can track key words through the text. Highlights
-            are driven by Strong&apos;s numbers, not manual markup.
+            How Moon View maps YLT English divine titles to their Hebrew forms
+            when <strong>God Names</strong> is on in the toolbar — including the
+            full substitution table and matching rules.
           </p>
-          <ul className="info-root-legend">
-            <li>
-              <span className="ylt-root--bara">bara</span> — create (H1254)
-            </li>
-            <li>
-              <span className="ylt-root--asah">asah</span> — make, do (H6213)
-            </li>
-            <li>
-              <span className="ylt-root--toledot">toledot</span> — generations
-              (H8435)
-            </li>
-            <li>
-              <span className="ylt-root--qadash">qadash</span> — sanctify (H6942)
-            </li>
-          </ul>
-          <p className="info-section-footnote">
-            In natural mode, highlights appear in the YLT prose column. In
-            analytic mode, they appear on aligned YLT words and matching Hebrew
-            morph tokens.
-          </p>
-        </section>
-
-        <section className="info-section">
-          <h2>God Names (YLT)</h2>
-          <p>
-            With <strong>God Names</strong> selected in the toolbar, Young&apos;s
-            Literal Translation replaces common English divine titles with their
-            Hebrew forms. The mapped name appears in bold; the original YLT
-            English follows in parentheses.
-          </p>
-          <div className="info-table-wrap">
-            <table className="info-table">
-              <thead>
-                <tr>
-                  <th scope="col">YLT (English)</th>
-                  <th scope="col">Display</th>
-                </tr>
-              </thead>
-              <tbody>
-                {YLT_DIVINE_SUBSTITUTION_KEY.map((entry) => (
-                  <tr key={entry.display}>
-                    <td>{entry.yltForms.join(", ")}</td>
-                    <td>
-                      <strong>{entry.display}</strong>
-                      {entry.note ? (
-                        <span className="info-table-note">{entry.note}</span>
-                      ) : null}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p className="info-section-footnote">
-            Longer phrases are matched first (e.g. <em>God Most High</em> before{" "}
-            <em>God</em>). With God Names off, YLT keeps its original English
-            divine titles (capitalized in natural mode); only the Hebrew-form
-            mapping above is skipped.
-          </p>
+          <a className="info-section-cta" href="#god-names">
+            Read God Names guide →
+          </a>
         </section>
       </article>
     </div>

@@ -281,14 +281,13 @@ export async function loadParallelVerses(
   const versions = activeEnglishVersions(columns);
   const needSource = columns.hebrew;
   const needYlt = versions.includes("ylt");
-  const needMorph = needSource || needYlt;
 
   const loaders: Promise<unknown>[] = [];
   if (needSource) loaders.push(ensureHebrew(book));
   if (versions.includes("kjv")) loaders.push(ensureKjv(book));
   if (versions.includes("jps")) loaders.push(ensureJps(book));
   if (needYlt) loaders.push(ensureYlt(book));
-  if (needMorph) loaders.push(ensureMorph(book));
+  if (needSource) loaders.push(ensureMorph(book));
   await Promise.all(loaders);
 
   const cached = getOrCreateCachedBook(book);
@@ -305,7 +304,7 @@ export async function loadParallelVerses(
   const yltMap = needYlt
     ? sliceRecord(cached.ylt!, chapterStart, chapterEnd)
     : new Map<string, string>();
-  const morphMap = needMorph
+  const morphMap = needSource
     ? sliceMorph(cached.morph!, chapterStart, chapterEnd)
     : new Map<string, MorphWord[]>();
 

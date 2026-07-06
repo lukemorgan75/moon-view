@@ -36,14 +36,6 @@ export async function loadStrongsDictionaries(): Promise<StrongsDictionaries> {
   return loadPromise;
 }
 
-/** @deprecated Use loadStrongsDictionaries */
-export async function loadStrongsDictionary(): Promise<
-  Record<string, StrongsEntry>
-> {
-  const dicts = await loadStrongsDictionaries();
-  return dicts.hebrew;
-}
-
 export function strongsKey(strong: string, lang: SourceLanguage): string {
   const s = strong.trim();
   if (s.startsWith("H") || s.startsWith("G")) return s;

@@ -1,9 +1,8 @@
 import { memo, useMemo } from "react";
 import type { SourceLanguage } from "../api/book-meta";
-import type { MorphWord } from "../types";
+import type { MorphWord, WordSelectHandler } from "../types";
 import { stripHtml } from "../utils/html";
 import { transliterateVerse } from "../utils/transliterate";
-import { yltRootHighlightClassFromStrong } from "../utils/ylt-root-highlights";
 
 interface HebrewCellProps {
   text: string;
@@ -12,10 +11,7 @@ interface HebrewCellProps {
   verseRef?: { chapter: number; verse: number };
   continuous?: boolean;
   clickable?: boolean;
-  onWordSelect?: (
-    strong: string,
-    location: { chapter: number; verse: number; wordIndex: number },
-  ) => void;
+  onWordSelect?: WordSelectHandler;
 }
 
 export const HebrewCell = memo(function HebrewCell({
@@ -47,19 +43,11 @@ export const HebrewCell = memo(function HebrewCell({
         className={`hebrew-cell hebrew-cell--clickable ${isGreek ? "hebrew-cell--greek" : ""}`}
       >
         <div className="hebrew-line" dir={textDir} lang={textLang}>
-          {morph.map((word, index) => {
-            const rootClass = yltRootHighlightClassFromStrong(word.s);
-            return (
+          {morph.map((word, index) => (
             <button
               key={`he-${index}`}
               type="button"
-              className={[
-                "morph-word",
-                "morph-word--hebrew",
-                rootClass ?? "",
-              ]
-                .filter(Boolean)
-                .join(" ")}
+              className="morph-word morph-word--hebrew"
               data-strong={word.s}
               data-chapter={verseRef.chapter}
               data-verse={verseRef.verse}
@@ -72,28 +60,19 @@ export const HebrewCell = memo(function HebrewCell({
                   chapter: verseRef.chapter,
                   verse: verseRef.verse,
                   wordIndex: index,
-                })
+                }, { morphTag: word.m })
               }
             >
               {word.t}
             </button>
-            );
-          })}
+          ))}
         </div>
         <div className="translit-line" dir="ltr">
-          {morph.map((word, index) => {
-            const rootClass = yltRootHighlightClassFromStrong(word.s);
-            return (
+          {morph.map((word, index) => (
             <button
               key={`tr-${index}`}
               type="button"
-              className={[
-                "morph-word",
-                "morph-word--translit",
-                rootClass ?? "",
-              ]
-                .filter(Boolean)
-                .join(" ")}
+              className="morph-word morph-word--translit"
               data-strong={word.s}
               data-chapter={verseRef.chapter}
               data-verse={verseRef.verse}
@@ -105,13 +84,12 @@ export const HebrewCell = memo(function HebrewCell({
                   chapter: verseRef.chapter,
                   verse: verseRef.verse,
                   wordIndex: index,
-                })
+                }, { morphTag: word.m })
               }
             >
               {word.tr ?? word.t}
             </button>
-            );
-          })}
+          ))}
         </div>
       </div>
     );

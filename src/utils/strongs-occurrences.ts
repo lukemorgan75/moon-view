@@ -36,3 +36,9 @@ export function scrollToVerse(chapter: number, verse: number): void {
     .getElementById(verseDomId(chapter, verse))
     ?.scrollIntoView({ behavior: "smooth", block: "center" });
 }
+
+export function scrollToChapterStart(chapter: number, verse = 1): void {
+  document
+    .getElementById(verseDomId(chapter, verse))
+    ?.scrollIntoView({ behavior: "auto", block: "start" });
+}
