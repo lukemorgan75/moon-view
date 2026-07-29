@@ -2,9 +2,11 @@ import type { MorphWord } from "../types";
 
 export interface CachedBookData {
   hebrew?: string[][];
+  greek?: Record<string, string>;
   kjv?: Map<string, string>;
   jps?: Map<string, string>;
   ylt?: Record<string, string>;
+  esv?: Record<string, string>;
   morph?: Record<string, MorphWord[]>;
 }
 

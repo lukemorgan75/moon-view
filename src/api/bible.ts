@@ -1,4 +1,5 @@
 import { getOrCreateCachedBook } from "./book-cache";
+import { getBookMeta } from "./book-meta";
 import {
   activeEnglishVersions,
   BOOKS_JSON_URL,
@@ -106,6 +107,25 @@ function flattenSefariaFull(text: string[][]): Map<string, string> {
   return flattenSefaria(text, 1, text.length);
 }
 
+function parseKjvPayload(data: {
+  chapters?: Array<{
+    chapter: string | number;
+    verses?: Array<{ verse: string | number; text: string }>;
+  }>;
+}): Map<string, string> {
+  const map = new Map<string, string>();
+  for (const chapter of data.chapters ?? []) {
+    const chapterNum = Number(chapter.chapter);
+    for (const verse of chapter.verses ?? []) {
+      map.set(
+        verseKey({ chapter: chapterNum, verse: Number(verse.verse) }),
+        String(verse.text).trim(),
+      );
+    }
+  }
+  return map;
+}
+
 async function ensureHebrew(book: string): Promise<string[][]> {
   const cached = getOrCreateCachedBook(book);
   if (cached.hebrew) return cached.hebrew;
@@ -118,6 +138,22 @@ async function ensureHebrew(book: string): Promise<string[][]> {
 
   cached.hebrew = data.text;
   return cached.hebrew;
+}
+
+async function ensureGreek(book: string): Promise<Record<string, string>> {
+  const cached = getOrCreateCachedBook(book);
+  if (cached.greek) return cached.greek;
+
+  const response = await fetch(
+    assetUrl(`/data/greek/${encodeURIComponent(book)}.json`),
+  );
+  if (!response.ok) {
+    throw new Error(`Failed to load Greek text for ${book}.`);
+  }
+
+  const data = (await response.json()) as Record<string, string>;
+  cached.greek = data;
+  return data;
 }
 
 async function ensureJps(book: string): Promise<Map<string, string>> {
@@ -141,23 +177,34 @@ async function ensureKjv(book: string): Promise<Map<string, string>> {
   const filename = SEFARIA_TO_KJV_FILE[book];
   if (!filename) throw new Error(`No KJV file mapping for ${book}.`);
 
-  const response = await fetch(`${KJV_JSON_BASE}/${filename}`);
-  if (!response.ok) throw new Error(`Failed to load KJV text for ${book}.`);
-  const data = await response.json();
-
-  const map = new Map<string, string>();
-  for (const chapter of data.chapters ?? []) {
-    const chapterNum = Number(chapter.chapter);
-    for (const verse of chapter.verses ?? []) {
-      map.set(
-        verseKey({ chapter: chapterNum, verse: Number(verse.verse) }),
-        String(verse.text).trim(),
-      );
-    }
+  // Prefer local KJV (Pauline books + any vendored OT) for speed; fall back to remote.
+  const localUrl = assetUrl(`/data/bibles/kjv/${encodeURIComponent(filename)}`);
+  let response = await fetch(localUrl);
+  if (!response.ok) {
+    response = await fetch(`${KJV_JSON_BASE}/${filename}`);
   }
+  if (!response.ok) throw new Error(`Failed to load KJV text for ${book}.`);
 
+  const data = await response.json();
+  const map = parseKjvPayload(data);
   cached.kjv = map;
   return map;
+}
+
+async function ensureEsv(book: string): Promise<Record<string, string>> {
+  const cached = getOrCreateCachedBook(book);
+  if (cached.esv) return cached.esv;
+
+  const response = await fetch(
+    assetUrl(`/data/bibles/esv/${encodeURIComponent(book)}.json`),
+  );
+  if (!response.ok) {
+    throw new Error(`Failed to load ESV text for ${book}.`);
+  }
+
+  const data = (await response.json()) as Record<string, string>;
+  cached.esv = data;
+  return data;
 }
 
 async function ensureYlt(book: string): Promise<Record<string, string>> {
@@ -232,17 +279,19 @@ function sliceMorph(
 }
 
 function buildRows(
-  hebrewMap: Map<string, string>,
+  sourceMap: Map<string, string>,
   kjvMap: Map<string, string>,
   jpsMap: Map<string, string>,
   yltMap: Map<string, string>,
+  esvMap: Map<string, string>,
   morphMap: Map<string, MorphWord[]>,
 ): VerseRow[] {
   const refs = new Set<string>([
-    ...hebrewMap.keys(),
+    ...sourceMap.keys(),
     ...kjvMap.keys(),
     ...jpsMap.keys(),
     ...yltMap.keys(),
+    ...esvMap.keys(),
     ...morphMap.keys(),
   ]);
 
@@ -257,13 +306,16 @@ function buildRows(
 
     if (kjvMap.has(key)) english.kjv = kjvMap.get(key)!;
     if (jpsMap.has(key)) {
-      english.jps = stripHtml(jpsMap.get(key)!, false);
+      // Strip Sefaria footnote markup so Heb. name glosses (e.g. "Heb. ’adam.")
+      // and alternate-reading notes do not appear inline in natural/analytic text.
+      english.jps = stripHtml(jpsMap.get(key)!, true);
     }
     if (yltMap.has(key)) english.ylt = yltMap.get(key)!;
+    if (esvMap.has(key)) english.esv = esvMap.get(key)!;
 
     rows.push({
       ref: { chapter, verse },
-      hebrew: stripHtml(hebrewMap.get(key) ?? "", false),
+      hebrew: stripHtml(sourceMap.get(key) ?? "", false),
       english,
       morph: morphMap.get(key),
     });
@@ -281,20 +333,32 @@ export async function loadParallelVerses(
   const versions = activeEnglishVersions(columns);
   const needSource = columns.hebrew;
   const needYlt = versions.includes("ylt");
+  const needEsv = versions.includes("esv");
+  const sourceLang = getBookMeta(book).sourceLanguage;
 
   const loaders: Promise<unknown>[] = [];
-  if (needSource) loaders.push(ensureHebrew(book));
+  if (needSource) {
+    if (sourceLang === "greek") loaders.push(ensureGreek(book));
+    else loaders.push(ensureHebrew(book));
+    loaders.push(ensureMorph(book));
+  }
   if (versions.includes("kjv")) loaders.push(ensureKjv(book));
   if (versions.includes("jps")) loaders.push(ensureJps(book));
   if (needYlt) loaders.push(ensureYlt(book));
-  if (needSource) loaders.push(ensureMorph(book));
+  if (needEsv) loaders.push(ensureEsv(book));
   await Promise.all(loaders);
 
   const cached = getOrCreateCachedBook(book);
 
-  const hebrewMap = needSource
-    ? flattenSefaria(cached.hebrew!, chapterStart, chapterEnd)
-    : new Map<string, string>();
+  let sourceMap: Map<string, string>;
+  if (!needSource) {
+    sourceMap = new Map();
+  } else if (sourceLang === "greek") {
+    sourceMap = sliceRecord(cached.greek!, chapterStart, chapterEnd);
+  } else {
+    sourceMap = flattenSefaria(cached.hebrew!, chapterStart, chapterEnd);
+  }
+
   const kjvMap = versions.includes("kjv")
     ? sliceMap(cached.kjv!, chapterStart, chapterEnd)
     : new Map<string, string>();
@@ -304,11 +368,14 @@ export async function loadParallelVerses(
   const yltMap = needYlt
     ? sliceRecord(cached.ylt!, chapterStart, chapterEnd)
     : new Map<string, string>();
+  const esvMap = needEsv
+    ? sliceRecord(cached.esv!, chapterStart, chapterEnd)
+    : new Map<string, string>();
   const morphMap = needSource
     ? sliceMorph(cached.morph!, chapterStart, chapterEnd)
     : new Map<string, MorphWord[]>();
 
-  return buildRows(hebrewMap, kjvMap, jpsMap, yltMap, morphMap);
+  return buildRows(sourceMap, kjvMap, jpsMap, yltMap, esvMap, morphMap);
 }
 
 export function englishText(row: VerseRow, version: EnglishVersion): string {

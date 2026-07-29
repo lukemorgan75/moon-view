@@ -58,10 +58,10 @@ export function useStrongsSelection(
       setSelection(null);
       return;
     }
-    loadStrongsDictionaries()
+    loadStrongsDictionaries(sourceLang)
       .then(setDictionaries)
       .catch(() => setDictionaries({ hebrew: {}, greek: {} }));
-  }, [enabled]);
+  }, [enabled, sourceLang]);
 
   useEffect(() => {
     setSelection(null);

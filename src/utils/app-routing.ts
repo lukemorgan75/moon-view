@@ -1,16 +1,45 @@
-export type AppRoute = "reader" | "info" | "god-names";
+import type { Corpus } from "../api/book-meta";
 
-export function parseRoute(hash: string): AppRoute {
-  const raw = (hash || "").replace(/^#/, "") || "reader";
-  if (raw === "info" || raw === "about") return "info";
-  if (raw === "god-names" || raw === "info/god-names") return "god-names";
-  return "reader";
+export type AppRoute = "home" | "reader" | "info";
+
+export interface ParsedRoute {
+  route: AppRoute;
+  corpus?: Corpus;
 }
 
-export function isInfoView(hash: string): boolean {
-  return parseRoute(hash) === "info";
+export function parseRoute(hash: string): ParsedRoute {
+  const raw = (hash || "").replace(/^#/, "").replace(/^\//, "") || "home";
+  const path = raw.split("?")[0].toLowerCase();
+
+  if (path === "info" || path === "about") return { route: "info" };
+  if (path === "torah" || path === "reader/torah") {
+    return { route: "reader", corpus: "torah" };
+  }
+  if (
+    path === "paul" ||
+    path === "pauline" ||
+    path === "epistles" ||
+    path === "reader/paul"
+  ) {
+    return { route: "reader", corpus: "paul" };
+  }
+  // Legacy bare reader hash and retired god-names deep links → home
+  if (path === "reader" || path === "god-names" || path === "info/god-names") {
+    return { route: "home" };
+  }
+  if (path === "home" || path === "") return { route: "home" };
+
+  return { route: "home" };
 }
 
-export function isGodNamesView(hash: string): boolean {
-  return parseRoute(hash) === "god-names";
+export function corpusHref(corpus: Corpus): string {
+  return corpus === "paul" ? "#paul" : "#torah";
+}
+
+export function homeHref(): string {
+  return "#home";
+}
+
+export function infoHref(): string {
+  return "#info";
 }

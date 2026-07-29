@@ -8,6 +8,8 @@ export function englishVersionLabel(version: EnglishVersion): string {
       return "JPS 1985";
     case "ylt":
       return "Young's Literal Translation";
+    case "esv":
+      return "English Standard Version";
     default:
       return version;
   }
@@ -21,6 +23,8 @@ export function englishVersionShortLabel(version: EnglishVersion): string {
       return "JPS";
     case "ylt":
       return "YLT";
+    case "esv":
+      return "ESV";
     default:
       return version;
   }
@@ -32,6 +36,7 @@ export function activeEnglishVersions(
   const versions: EnglishVersion[] = [];
   if (columns.kjv) versions.push("kjv");
   if (columns.jps) versions.push("jps");
+  if (columns.esv) versions.push("esv");
   if (columns.ylt) versions.push("ylt");
   return versions;
 }

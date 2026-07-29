@@ -11,6 +11,7 @@ export function stripHtml(text: string, removeFootnotes = false): string {
   if (removeFootnotes) {
     result = result
       .replace(/<sup[^>]*class=["']footnote-marker["'][^>]*>[\s\S]*?<\/sup>/gi, "")
+      .replace(/<sup[^>]*class=["']endFootnote["'][^>]*>[\s\S]*?<\/sup>/gi, "")
       .replace(/<i[^>]*class=["']footnote["'][^>]*>[\s\S]*?<\/i>/gi, "");
   }
 

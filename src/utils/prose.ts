@@ -9,10 +9,10 @@ function formatEnglish(
   text: string,
   version: EnglishVersion,
   viewMode: ViewMode,
-  yltDivineNames: boolean,
 ): string {
   if (version === "ylt") {
-    const options = { divineNames: yltDivineNames };
+    // Divine-name substitution removed; keep original YLT wording + punctuation.
+    const options = { divineNames: false };
     return viewMode === "natural"
       ? formatYltNatural(text, options)
       : formatYltAnalytic(text, options);
@@ -24,21 +24,19 @@ export function displayEnglish(
   row: VerseRow,
   version: EnglishVersion,
   viewMode: ViewMode,
-  yltDivineNames = true,
 ): string {
   const raw = englishText(row, version);
   if (!raw) return "";
-  return formatEnglish(raw, version, viewMode, yltDivineNames);
+  return formatEnglish(raw, version, viewMode);
 }
 
 export function joinEnglish(
   verses: VerseRow[],
   version: EnglishVersion,
   viewMode: ViewMode,
-  yltDivineNames = true,
 ): string {
   return verses
-    .map((row) => displayEnglish(row, version, viewMode, yltDivineNames))
+    .map((row) => displayEnglish(row, version, viewMode))
     .filter(Boolean)
     .join(" ");
 }
@@ -57,7 +55,6 @@ export function joinVerseField(
   verses: VerseRow[],
   field: EnglishVersion | "hebrew",
   viewMode: ViewMode,
-  yltDivineNames = true,
 ): string {
   if (field === "hebrew") {
     return verses
@@ -66,7 +63,7 @@ export function joinVerseField(
       .join(" ");
   }
 
-  return joinEnglish(verses, field, viewMode, yltDivineNames);
+  return joinEnglish(verses, field, viewMode);
 }
 
 export function joinRawHebrew(verses: VerseRow[]): string {

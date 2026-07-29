@@ -28,8 +28,6 @@ import { HebrewCell } from "./HebrewCell";
 import { HebrewNamePane } from "./HebrewNamePane";
 import { StrongsPane } from "./StrongsPane";
 import { isProperNoun } from "../utils/morph-tags";
-import { YltRichText } from "./YltRichText";
-
 
 interface ParallelViewProps {
   verses: VerseRow[];
@@ -173,26 +171,28 @@ function ColumnHeaders({
   );
 }
 
+function isAlignableVersion(
+  version: EnglishVersion,
+): version is AlignableEnglishVersion {
+  return version === "kjv" || version === "ylt" || version === "esv";
+}
+
 function EnglishCells({
   row,
   view,
   viewMode,
-  yltDivineNames,
   onWordSelect,
   verseAlign,
 }: {
   row: VerseRow | VerseRow[];
   view: DerivedViewState;
   viewMode: ViewerPreferences["viewMode"];
-  yltDivineNames: boolean;
   onWordSelect?: WordSelectHandler;
   verseAlign?: Partial<Record<AlignableEnglishVersion, number[][]>>;
 }) {
   const rows = Array.isArray(row) ? row : [row];
   const englishCols = activeEnglishVersions(view.columns);
   const verseRow = rows[0];
-  const alignable = (version: AlignableEnglishVersion) =>
-    (version === "kjv" || version === "ylt") && verseRow.morph?.length;
 
   return (
     <>
@@ -201,32 +201,17 @@ function EnglishCells({
           key={version}
           className={`cell text-cell ${version === "ylt" ? "text-cell--ylt" : ""}`}
         >
-          {alignable(version as AlignableEnglishVersion) ? (
+          {isAlignableVersion(version) && verseRow.morph?.length ? (
             <EnglishVerseCell
-              text={displayEnglish(
-                verseRow,
-                version,
-                viewMode,
-                yltDivineNames,
-              )}
-              version={version as AlignableEnglishVersion}
+              text={displayEnglish(verseRow, version, viewMode)}
+              version={version}
               verseRef={verseRow.ref}
               morph={verseRow.morph}
-              align={verseAlign?.[version as AlignableEnglishVersion]}
-              yltRichText={version === "ylt" && yltDivineNames}
+              align={verseAlign?.[version]}
               onWordSelect={onWordSelect}
             />
-          ) : version === "ylt" && yltDivineNames ? (
-            <YltRichText
-              html={displayEnglish(
-                verseRow,
-                version,
-                viewMode,
-                yltDivineNames,
-              )}
-            />
           ) : (
-            displayEnglish(verseRow, version, viewMode, yltDivineNames)
+            displayEnglish(verseRow, version, viewMode)
           )}
         </div>
       ))}
@@ -288,7 +273,6 @@ function ContinuousProseColumn({
   verses,
   version,
   viewMode,
-  yltDivineNames,
   hoveredVerse,
   pinnedVerse,
   scrollTarget,
@@ -296,7 +280,6 @@ function ContinuousProseColumn({
   verses: VerseRow[];
   version: EnglishVersion;
   viewMode: ViewerPreferences["viewMode"];
-  yltDivineNames: boolean;
   hoveredVerse: string | null;
   pinnedVerse: string | null;
   scrollTarget: boolean;
@@ -304,7 +287,7 @@ function ContinuousProseColumn({
   const rendered = verses
     .map((row) => ({
       key: verseKey(row.ref.chapter, row.ref.verse),
-      text: displayEnglish(row, version, viewMode, yltDivineNames),
+      text: displayEnglish(row, version, viewMode),
     }))
     .filter((entry) => entry.text);
 
@@ -319,11 +302,7 @@ function ContinuousProseColumn({
           data-verse-key={entry.key}
           className={proseVerseClassName(entry.key, hoveredVerse, pinnedVerse)}
         >
-          {version === "ylt" && yltDivineNames ? (
-            <YltRichText html={entry.text} />
-          ) : (
-            entry.text
-          )}
+          {entry.text}
           {index < rendered.length - 1 ? " " : ""}
         </span>
       ))}
@@ -334,7 +313,6 @@ function ContinuousProseColumn({
 function ContinuousProse({
   verses,
   viewMode,
-  yltDivineNames,
   englishCols,
   gridTemplate,
   pinnedVerse,
@@ -342,7 +320,6 @@ function ContinuousProse({
 }: {
   verses: VerseRow[];
   viewMode: ViewerPreferences["viewMode"];
-  yltDivineNames: boolean;
   englishCols: EnglishVersion[];
   gridTemplate: string;
   pinnedVerse: string | null;
@@ -375,7 +352,6 @@ function ContinuousProse({
           verses={verses}
           version={version}
           viewMode={viewMode}
-          yltDivineNames={yltDivineNames}
           hoveredVerse={hoveredVerse}
           pinnedVerse={pinnedVerse}
           scrollTarget={columnIndex === 0}
@@ -401,10 +377,11 @@ export function ParallelView({
     verses.length > 0;
 
   const sourceLang = getBookMeta(prefs.book).sourceLanguage;
+  const hebrewNamesEnabled = strongsEnabled && sourceLang === "hebrew";
 
   const englishAlignEnabled =
     strongsEnabled &&
-    (view.columns.kjv || view.columns.ylt) &&
+    (view.columns.kjv || view.columns.ylt || view.columns.esv) &&
     !view.continuousMode;
 
   const alignMap = useEnglishAlignment(verses, sourceLang, englishAlignEnabled);
@@ -426,11 +403,12 @@ export function ParallelView({
     selectName,
     selectOccurrence: selectNameOccurrence,
     clearSelection: clearNameSelection,
-  } = useHebrewNameSelection(verses, prefs.book, strongsEnabled);
+  } = useHebrewNameSelection(verses, prefs.book, hebrewNamesEnabled);
 
   const handleWordSelect = useCallback<WordSelectHandler>(
     (strong, location, options) => {
       const useNamePane =
+        sourceLang === "hebrew" &&
         isProperNoun(options?.morphTag) &&
         hasHebrewNameEntry(nameDictionary, strong);
 
@@ -444,6 +422,7 @@ export function ParallelView({
       selectWord(strong, location, options?.englishWord);
     },
     [
+      sourceLang,
       nameDictionary,
       clearStrongsSelection,
       selectName,
@@ -547,7 +526,7 @@ export function ParallelView({
   const readerRestoreKey = [
     prefs.viewMode,
     prefs.naturalEnglish,
-    prefs.yltDivineNames,
+    prefs.corpus,
     focusedVersion ?? "all",
   ].join(":");
 
@@ -582,7 +561,6 @@ export function ParallelView({
     <ContinuousProse
       verses={verses}
       viewMode={prefs.viewMode}
-      yltDivineNames={prefs.yltDivineNames}
       englishCols={displayEnglishCols}
       gridTemplate={displayGridTemplate}
       pinnedVerse={pinnedVerse}
@@ -623,7 +601,6 @@ export function ParallelView({
                     row={row}
                     view={view}
                     viewMode={prefs.viewMode}
-                    yltDivineNames={prefs.yltDivineNames}
                     onWordSelect={handleWordSelect}
                     verseAlign={alignMap.get(
                       `${row.ref.chapter}:${row.ref.verse}`,

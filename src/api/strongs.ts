@@ -13,27 +13,45 @@ export interface StrongsDictionaries {
   greek: Record<string, StrongsEntry>;
 }
 
-let dictionaries: StrongsDictionaries | null = null;
-let loadPromise: Promise<StrongsDictionaries> | null = null;
+const emptyDicts = (): StrongsDictionaries => ({ hebrew: {}, greek: {} });
 
-export async function loadStrongsDictionaries(): Promise<StrongsDictionaries> {
-  if (dictionaries) return dictionaries;
-  if (!loadPromise) {
-    loadPromise = Promise.all([
-      fetch(assetUrl("/data/strongs-hebrew.json")).then((r) => {
-        if (!r.ok) throw new Error("Failed to load Hebrew Strong's dictionary.");
-        return r.json() as Promise<Record<string, StrongsEntry>>;
-      }),
-      fetch(assetUrl("/data/strongs-greek.json")).then((r) => {
-        if (!r.ok) throw new Error("Failed to load Greek Strong's dictionary.");
-        return r.json() as Promise<Record<string, StrongsEntry>>;
-      }),
-    ]).then(([hebrew, greek]) => {
-      dictionaries = { hebrew, greek };
-      return dictionaries;
+let dictionaries: StrongsDictionaries = emptyDicts();
+const langPromises = new Map<SourceLanguage, Promise<void>>();
+
+async function loadLang(lang: SourceLanguage): Promise<void> {
+  const existing = langPromises.get(lang);
+  if (existing) return existing;
+
+  const file =
+    lang === "greek" ? "strongs-greek.json" : "strongs-hebrew.json";
+  const label = lang === "greek" ? "Greek" : "Hebrew";
+
+  const promise = fetch(assetUrl(`/data/${file}`))
+    .then(async (r) => {
+      if (!r.ok) throw new Error(`Failed to load ${label} Strong's dictionary.`);
+      const data = (await r.json()) as Record<string, StrongsEntry>;
+      if (lang === "greek") dictionaries.greek = data;
+      else dictionaries.hebrew = data;
+    })
+    .catch((err) => {
+      langPromises.delete(lang);
+      throw err;
     });
+
+  langPromises.set(lang, promise);
+  return promise;
+}
+
+/** Load only the Strong's dictionary needed for the active source language. */
+export async function loadStrongsDictionaries(
+  lang?: SourceLanguage,
+): Promise<StrongsDictionaries> {
+  if (lang) {
+    await loadLang(lang);
+    return dictionaries;
   }
-  return loadPromise;
+  await Promise.all([loadLang("hebrew"), loadLang("greek")]);
+  return dictionaries;
 }
 
 export function strongsKey(strong: string, lang: SourceLanguage): string {

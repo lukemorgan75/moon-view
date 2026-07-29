@@ -165,7 +165,7 @@ body {
 }
 
 .toolbar-book-select {
-  min-width: 9.5rem;
+  min-width: 10.5rem;
 }
 
 .toolbar-chapter-field {
@@ -2318,4 +2318,286 @@ body.splash-active {
   object-position: center;
   user-select: none;
   -webkit-user-drag: none;
+}
+
+/* —— Corpus hub (NASA moon peeping from bottom) —— */
+.hub-page {
+  /* Shared span for lunar base + top chrome so they read as one frame. */
+  --hub-gutter: clamp(1.25rem, 4vw, 2.5rem);
+  --hub-base-width: min(calc(100vw - 2 * var(--hub-gutter)), 56rem);
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  /* Hub always reads as night over the photo, even in papyrus mode. */
+  color: #f5f5f7;
+  background: #000;
+}
+
+.hub-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: #000;
+}
+
+/*
+ * Anchor the photo to the bottom edge and crop tightly to the illuminated
+ * crest + Earth-rise, so most of the viewport stays pure black for chrome.
+ * Width tracks --hub-base-width so the top bar lines up with the moon.
+ */
+.hub-backdrop-image {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: var(--hub-base-width);
+  height: min(52vh, 28rem);
+  max-width: none;
+  object-fit: cover;
+  /* Crop to the bright upper limb / Earth (upper third of the source). */
+  object-position: center 22%;
+  transform: translateX(-50%);
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.hub-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: none;
+  margin: 0 auto;
+  padding: 1.75rem var(--hub-gutter) max(3rem, 18vh);
+  min-height: 100dvh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+  /* Keep menu/cards in the upper black field, clear of the lunar limb. */
+  justify-content: flex-start;
+}
+
+.hub-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  width: var(--hub-base-width);
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.hub-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.hub-brand-mark {
+  width: 2.75rem;
+  height: 2.75rem;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.35),
+    0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.hub-title {
+  margin: 0;
+  font-size: 1.85rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  text-shadow: 0 1px 18px rgba(0, 0, 0, 0.55);
+}
+
+.hub-title .app-title-word--light {
+  opacity: 0.78;
+}
+
+.hub-lead {
+  margin: 0.3rem 0 0;
+  color: rgba(245, 245, 247, 0.72);
+  font-size: 0.9375rem;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.55);
+}
+
+.hub-about-link {
+  flex-shrink: 0;
+  margin-top: 0;
+  color: rgba(245, 245, 247, 0.88) !important;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm);
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  padding: 0.4rem 0.75rem;
+}
+
+.hub-about-link:hover {
+  background: rgba(255, 255, 255, 0.14) !important;
+  color: #fff !important;
+}
+
+.hub-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: var(--hub-base-width);
+  max-width: 100%;
+  margin-top: 1.25rem;
+  /* Leave room so cards don't sit on the moon crest on short screens. */
+  margin-bottom: min(28vh, 12rem);
+  box-sizing: border-box;
+}
+
+@media (max-height: 640px) {
+  .hub-backdrop-image {
+    height: min(42vh, 18rem);
+  }
+
+  .hub-content {
+    padding-bottom: max(2rem, 12vh);
+  }
+
+  .hub-main {
+    margin-bottom: min(18vh, 6rem);
+  }
+}
+
+@media (min-width: 900px) {
+  .hub-page {
+    --hub-base-width: min(calc(100vw - 2 * var(--hub-gutter)), 64rem);
+  }
+
+  .hub-backdrop-image {
+    height: min(58vh, 34rem);
+    object-position: center 20%;
+  }
+}
+
+.hub-prompt {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(245, 245, 247, 0.62);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.5);
+}
+
+.hub-choices {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+}
+
+@media (min-width: 560px) {
+  .hub-choices {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.hub-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  padding: 1.25rem 1.2rem 1.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-lg);
+  background: rgba(18, 18, 22, 0.52);
+  color: #f5f5f7;
+  text-decoration: none;
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 12px 32px rgba(0, 0, 0, 0.28);
+}
+
+.hub-card:hover {
+  border-color: rgba(184, 201, 232, 0.45);
+  background: rgba(28, 30, 38, 0.68);
+  transform: translateY(-2px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.08) inset,
+    0 16px 40px rgba(0, 0, 0, 0.38);
+  text-decoration: none;
+  color: #f5f5f7;
+}
+
+.hub-card:focus-visible {
+  outline: 2px solid rgba(184, 201, 232, 0.9);
+  outline-offset: 3px;
+}
+
+.hub-card-kicker {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(245, 245, 247, 0.58);
+}
+
+.hub-card-title {
+  font-size: 1.5rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: #fafbfc;
+}
+
+.hub-card-desc {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: rgba(245, 245, 247, 0.68);
+}
+
+.brand-home-link {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand-home-link:hover {
+  text-decoration: none;
+  color: inherit;
+}
+
+.corpus-chip {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.45rem;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--accent-soft);
+  color: var(--muted);
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.mode-toggle-btn--static {
+  cursor: default;
+  pointer-events: none;
+}
+
+.natural-english-toggle--static .mode-toggle-btn--static + .mode-toggle-btn--static {
+  border-left: 1px solid var(--border);
 }

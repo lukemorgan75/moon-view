@@ -19,6 +19,7 @@ export function useEnglishAlignment(
   sourceLang: SourceLanguage,
   enabled: boolean,
 ): VerseAlignMap {
+  // Alignments run after text is shown (idle chunks) so the reader stays responsive.
   const [alignMap, setAlignMap] = useState<VerseAlignMap>(() => new Map());
 
   const versesKey = useMemo(() => {
@@ -52,7 +53,7 @@ export function useEnglishAlignment(
     };
 
     (async () => {
-      const strongs = await loadStrongsDictionaries();
+      const strongs = await loadStrongsDictionaries(sourceLang);
       if (cancelled) return;
 
       let index = 0;
@@ -76,7 +77,7 @@ export function useEnglishAlignment(
             strongs,
             sourceLang,
           );
-          if (!align.ylt && !align.kjv) continue;
+          if (!align.ylt && !align.kjv && !align.esv) continue;
           result.set(verseAlignKey(row.ref.chapter, row.ref.verse), align);
         }
 

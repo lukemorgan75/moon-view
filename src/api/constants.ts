@@ -8,12 +8,16 @@ export {
 export {
   AVAILABLE_BOOKS,
   BOOK_CATALOG,
+  booksForCorpus,
+  defaultBookForCorpus,
   getBookMeta,
+  isPaulBook,
   isTorahBook,
+  PAUL_BOOK_NAMES,
   sourceLanguageLabel,
   TORAH_BOOK_NAMES,
 } from "./book-meta";
-export type { BookMeta, SourceLanguage, Testament } from "./book-meta";
+export type { BookMeta, Corpus, SourceLanguage, Testament } from "./book-meta";
 
 export const BOOKS_JSON_URL =
   "https://raw.githubusercontent.com/Sefaria/Sefaria-Export/master/books.json";
