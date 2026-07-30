@@ -8,7 +8,10 @@ export function useReaderGrid(view: DerivedViewState) {
   const gridTemplate = useMemo(() => {
     const cols: string[] = [];
     if (view.showRefs && !view.continuousMode) cols.push("var(--col-ref)");
-    for (const _version of englishCols) cols.push("1fr");
+    for (const version of englishCols) {
+      // Locke's paraphrase runs a bit longer than ESV; modest extra width.
+      cols.push(version === "locke" ? "1.25fr" : "1fr");
+    }
     if (view.columns.hebrew) cols.push("1fr");
     if (view.columns.notes) {
       cols.push(view.notesCollapsed ? "var(--col-notes-collapsed)" : "1fr");

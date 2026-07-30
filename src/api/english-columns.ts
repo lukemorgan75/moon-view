@@ -10,6 +10,8 @@ export function englishVersionLabel(version: EnglishVersion): string {
       return "Young's Literal Translation";
     case "esv":
       return "English Standard Version";
+    case "locke":
+      return "Locke's Paraphrase";
     default:
       return version;
   }
@@ -25,6 +27,8 @@ export function englishVersionShortLabel(version: EnglishVersion): string {
       return "YLT";
     case "esv":
       return "ESV";
+    case "locke":
+      return "Locke";
     default:
       return version;
   }
@@ -37,6 +41,7 @@ export function activeEnglishVersions(
   if (columns.kjv) versions.push("kjv");
   if (columns.jps) versions.push("jps");
   if (columns.esv) versions.push("esv");
+  if (columns.locke) versions.push("locke");
   if (columns.ylt) versions.push("ylt");
   return versions;
 }

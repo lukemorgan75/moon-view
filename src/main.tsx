@@ -4,6 +4,7 @@ import "./index.css";
 import App from "./App.tsx";
 import { CorpusHome } from "./components/CorpusHome.tsx";
 import { InfoView } from "./components/InfoView.tsx";
+import { RevelationView } from "./components/RevelationView.tsx";
 import { SplashGate } from "./components/SplashScreen.tsx";
 import { parseRoute } from "./utils/app-routing";
 
@@ -38,6 +39,7 @@ function Root() {
   const { route, corpus } = parseRoute(hash);
 
   if (route === "info") return <InfoView />;
+  if (route === "revelation") return <RevelationView />;
   if (route === "reader" && corpus) return <App corpus={corpus} />;
   return <CorpusHome />;
 }

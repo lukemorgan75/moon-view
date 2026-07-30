@@ -1,4 +1,4 @@
-import { booksForCorpus, getBookMeta } from "../api/book-meta";
+import { booksForCorpus, getBookMeta, hasLockeParaphrase } from "../api/book-meta";
 import { homeHref, infoHref } from "../utils/app-routing";
 import type {
   NaturalEnglishVersion,
@@ -74,19 +74,35 @@ function NaturalEnglishToggle({
   );
 }
 
-function PaulEnglishBadge() {
+function PaulEnglishBadge({ showLocke }: { showLocke: boolean }) {
   return (
     <div
       className="mode-toggle natural-english-toggle natural-english-toggle--static"
       role="group"
       aria-label="English translations"
     >
-      <span className="mode-toggle-btn mode-toggle-btn--active mode-toggle-btn--static">
-        KJV
-      </span>
-      <span className="mode-toggle-btn mode-toggle-btn--active mode-toggle-btn--static">
-        ESV
-      </span>
+      {showLocke ? (
+        <>
+          <span className="mode-toggle-btn mode-toggle-btn--active mode-toggle-btn--static">
+            ESV
+          </span>
+          <span
+            className="mode-toggle-btn mode-toggle-btn--active mode-toggle-btn--static"
+            title="Locke's Paraphrase — paired with ESV for this letter"
+          >
+            Locke
+          </span>
+        </>
+      ) : (
+        <>
+          <span className="mode-toggle-btn mode-toggle-btn--active mode-toggle-btn--static">
+            KJV
+          </span>
+          <span className="mode-toggle-btn mode-toggle-btn--active mode-toggle-btn--static">
+            ESV
+          </span>
+        </>
+      )}
     </div>
   );
 }
@@ -129,6 +145,7 @@ export function Toolbar({ prefs, loading, onUpdate }: ToolbarProps) {
   const chapterCount = getBookMeta(prefs.book).chapters;
   const books = booksForCorpus(prefs.corpus);
   const isPaul = prefs.corpus === "paul";
+  const showLocke = isPaul && hasLockeParaphrase(prefs.book);
   const bookLabel = isPaul ? "Pauline letter" : "Book of Torah";
 
   return (
@@ -191,7 +208,7 @@ export function Toolbar({ prefs, loading, onUpdate }: ToolbarProps) {
       />
 
       {isPaul ? (
-        <PaulEnglishBadge />
+        <PaulEnglishBadge showLocke={showLocke} />
       ) : (
         <NaturalEnglishToggle
           naturalEnglish={prefs.naturalEnglish}

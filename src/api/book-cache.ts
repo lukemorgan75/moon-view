@@ -7,6 +7,7 @@ export interface CachedBookData {
   jps?: Map<string, string>;
   ylt?: Record<string, string>;
   esv?: Record<string, string>;
+  locke?: Record<string, string>;
   morph?: Record<string, MorphWord[]>;
 }
 

@@ -47,18 +47,36 @@ export function InfoView() {
         <section className="info-section">
           <h2>Paul</h2>
           <p>
-            KJV and ESV sit side by side in both modes. Analytic mode adds Greek
-            morphology (SBLGNT), transliteration, and Strong&apos;s Greek. All
-            Greek and English for the Pauline letters are loaded from local
-            data for quick open times.
+            For most Pauline letters, KJV and ESV sit side by side. On the five
+            letters Locke paraphrased (Galatians, I–II Corinthians, Romans,
+            Ephesians), the layout switches to ESV paired with Locke&apos;s
+            Paraphrase — Locke&apos;s column is wider so it stays roughly level
+            with the ESV. Analytic mode adds Greek morphology (SBLGNT),
+            transliteration, and Strong&apos;s Greek. Locke&apos;s text is an
+            OCR reading edition — use the printed paraphrase for careful study.
+          </p>
+        </section>
+
+        <section className="info-section">
+          <h2>Revelation</h2>
+          <p>
+            A different reader: KJV Revelation with the words of Jesus in red,
+            and Isaac Newton&apos;s prophetic figures from the Yahuda treatise.
+            Words that match his Definitions (sun, beast, woman, mountain, and
+            so on) are highlighted automatically so you can consult those senses
+            — not as a claim that Newton applied that figure to every matching
+            English root. Click a highlight to read the definition; propositions
+            for the chapter sit in the same pane. Chapter and verse numbers can
+            be shown or hidden; each chapter is a continuous paragraph.
           </p>
         </section>
 
         <section className="info-section">
           <p>
-            Click a verse to pin your place — in natural mode anywhere in the
-            text, in analytic mode on the verse number. Read with minimal bias,
-            and toggle enhanced features only when you need them.
+            Click a verse to pin your place in Torah or Paul — in natural mode
+            anywhere in the text, in analytic mode on the verse number. Read
+            with minimal bias, and toggle enhanced features only when you need
+            them.
           </p>
         </section>
       </article>

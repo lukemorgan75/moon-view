@@ -1,6 +1,6 @@
 import type { Corpus } from "../api/book-meta";
 
-export type AppRoute = "home" | "reader" | "info";
+export type AppRoute = "home" | "reader" | "revelation" | "info";
 
 export interface ParsedRoute {
   route: AppRoute;
@@ -12,6 +12,14 @@ export function parseRoute(hash: string): ParsedRoute {
   const path = raw.split("?")[0].toLowerCase();
 
   if (path === "info" || path === "about") return { route: "info" };
+  if (
+    path === "revelation" ||
+    path === "rev" ||
+    path === "apocalypse" ||
+    path === "reader/revelation"
+  ) {
+    return { route: "revelation" };
+  }
   if (path === "torah" || path === "reader/torah") {
     return { route: "reader", corpus: "torah" };
   }
@@ -34,6 +42,10 @@ export function parseRoute(hash: string): ParsedRoute {
 
 export function corpusHref(corpus: Corpus): string {
   return corpus === "paul" ? "#paul" : "#torah";
+}
+
+export function revelationHref(): string {
+  return "#revelation";
 }
 
 export function homeHref(): string {

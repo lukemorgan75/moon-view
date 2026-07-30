@@ -207,6 +207,24 @@ async function ensureEsv(book: string): Promise<Record<string, string>> {
   return data;
 }
 
+/** Locke's paraphrase — only available for five Pauline letters. Missing → {}. */
+async function ensureLocke(book: string): Promise<Record<string, string>> {
+  const cached = getOrCreateCachedBook(book);
+  if (cached.locke) return cached.locke;
+
+  const response = await fetch(
+    assetUrl(`/data/bibles/locke/${encodeURIComponent(book)}.json`),
+  );
+  if (!response.ok) {
+    cached.locke = {};
+    return cached.locke;
+  }
+
+  const data = (await response.json()) as Record<string, string>;
+  cached.locke = data;
+  return data;
+}
+
 async function ensureYlt(book: string): Promise<Record<string, string>> {
   const cached = getOrCreateCachedBook(book);
   if (cached.ylt) return cached.ylt;
@@ -284,6 +302,7 @@ function buildRows(
   jpsMap: Map<string, string>,
   yltMap: Map<string, string>,
   esvMap: Map<string, string>,
+  lockeMap: Map<string, string>,
   morphMap: Map<string, MorphWord[]>,
 ): VerseRow[] {
   const refs = new Set<string>([
@@ -292,6 +311,7 @@ function buildRows(
     ...jpsMap.keys(),
     ...yltMap.keys(),
     ...esvMap.keys(),
+    ...lockeMap.keys(),
     ...morphMap.keys(),
   ]);
 
@@ -312,6 +332,7 @@ function buildRows(
     }
     if (yltMap.has(key)) english.ylt = yltMap.get(key)!;
     if (esvMap.has(key)) english.esv = esvMap.get(key)!;
+    if (lockeMap.has(key)) english.locke = lockeMap.get(key)!;
 
     rows.push({
       ref: { chapter, verse },
@@ -334,6 +355,7 @@ export async function loadParallelVerses(
   const needSource = columns.hebrew;
   const needYlt = versions.includes("ylt");
   const needEsv = versions.includes("esv");
+  const needLocke = versions.includes("locke");
   const sourceLang = getBookMeta(book).sourceLanguage;
 
   const loaders: Promise<unknown>[] = [];
@@ -346,6 +368,7 @@ export async function loadParallelVerses(
   if (versions.includes("jps")) loaders.push(ensureJps(book));
   if (needYlt) loaders.push(ensureYlt(book));
   if (needEsv) loaders.push(ensureEsv(book));
+  if (needLocke) loaders.push(ensureLocke(book));
   await Promise.all(loaders);
 
   const cached = getOrCreateCachedBook(book);
@@ -371,11 +394,22 @@ export async function loadParallelVerses(
   const esvMap = needEsv
     ? sliceRecord(cached.esv!, chapterStart, chapterEnd)
     : new Map<string, string>();
+  const lockeMap = needLocke
+    ? sliceRecord(cached.locke!, chapterStart, chapterEnd)
+    : new Map<string, string>();
   const morphMap = needSource
     ? sliceMorph(cached.morph!, chapterStart, chapterEnd)
     : new Map<string, MorphWord[]>();
 
-  return buildRows(sourceMap, kjvMap, jpsMap, yltMap, esvMap, morphMap);
+  return buildRows(
+    sourceMap,
+    kjvMap,
+    jpsMap,
+    yltMap,
+    esvMap,
+    lockeMap,
+    morphMap,
+  );
 }
 
 export function englishText(row: VerseRow, version: EnglishVersion): string {

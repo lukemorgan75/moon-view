@@ -99,6 +99,21 @@ export function isPaulBook(book: string): boolean {
   return getBookMeta(book).corpus === "paul";
 }
 
+/** Books Locke treated in his Paraphrase and Notes (not the full Pauline corpus). */
+export const LOCKE_PARAPHRASE_BOOKS = [
+  "Galatians",
+  "I Corinthians",
+  "II Corinthians",
+  "Romans",
+  "Ephesians",
+] as const;
+
+const LOCKE_BOOK_SET = new Set<string>(LOCKE_PARAPHRASE_BOOKS);
+
+export function hasLockeParaphrase(book: string): boolean {
+  return LOCKE_BOOK_SET.has(book);
+}
+
 export function corpusForBook(book: string): Corpus {
   return getBookMeta(book).corpus;
 }

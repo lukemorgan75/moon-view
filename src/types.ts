@@ -1,12 +1,12 @@
 import type { Corpus } from "./api/book-meta";
-import { getBookMeta } from "./api/book-meta";
+import { getBookMeta, hasLockeParaphrase } from "./api/book-meta";
 
 export interface VerseRef {
   chapter: number;
   verse: number;
 }
 
-export type EnglishVersion = "kjv" | "jps" | "ylt" | "esv";
+export type EnglishVersion = "kjv" | "jps" | "ylt" | "esv" | "locke";
 
 export type NaturalEnglishVersion = "kjv" | "jps";
 
@@ -69,6 +69,7 @@ export interface ColumnVisibility {
   jps: boolean;
   ylt: boolean;
   esv: boolean;
+  locke: boolean;
   hebrew: boolean;
   notes: boolean;
 }
@@ -113,14 +114,30 @@ export function deriveViewState(
 ): DerivedViewState {
   const isPaul = prefs.corpus === "paul";
 
-  let englishColumns: Pick<ColumnVisibility, "kjv" | "jps" | "ylt" | "esv">;
+  let englishColumns: Pick<
+    ColumnVisibility,
+    "kjv" | "jps" | "ylt" | "esv" | "locke"
+  >;
   if (isPaul) {
-    englishColumns = {
-      kjv: true,
-      jps: false,
-      ylt: false,
-      esv: true,
-    };
+    // Locke only wrote on five letters — pair those with ESV only (wider Locke column).
+    // All other Paulines keep the original KJV + ESV layout.
+    if (hasLockeParaphrase(prefs.book)) {
+      englishColumns = {
+        kjv: false,
+        jps: false,
+        ylt: false,
+        esv: true,
+        locke: true,
+      };
+    } else {
+      englishColumns = {
+        kjv: true,
+        jps: false,
+        ylt: false,
+        esv: true,
+        locke: false,
+      };
+    }
   } else {
     const useJps = prefs.naturalEnglish === "jps";
     englishColumns = {
@@ -128,6 +145,7 @@ export function deriveViewState(
       jps: useJps,
       ylt: true,
       esv: false,
+      locke: false,
     };
   }
 

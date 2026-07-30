@@ -1,0 +1,23 @@
+{
+  "source": {
+    "author": "John Locke",
+    "work": "A Paraphrase and Notes on the Epistles of St. Paul to the Galatians, First and Second Corinthians, Romans, and Ephesians",
+    "edition": "1832 (Internet Archive / Google Books OCR)",
+    "url": "https://archive.org/details/aparaphraseandn00lockgoog",
+    "books": [
+      "Galatians",
+      "I Corinthians",
+      "II Corinthians",
+      "Romans",
+      "Ephesians"
+    ],
+    "note": "OCR-derived reading text. Locke treated only these five epistles. Gaps and OCR noise may remain; consult the printed edition for study."
+  },
+  "verse_counts": {
+    "Galatians": 134,
+    "I Corinthians": 341,
+    "II Corinthians": 163,
+    "Romans": 321,
+    "Ephesians": 123
+  }
+}

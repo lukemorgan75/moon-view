@@ -26,6 +26,7 @@ import { verseDomId } from "../utils/strongs-occurrences";
 import { EnglishVerseCell } from "./EnglishVerseCell";
 import { HebrewCell } from "./HebrewCell";
 import { HebrewNamePane } from "./HebrewNamePane";
+import { LockePrefacePanel } from "./LockePrefacePanel";
 import { StrongsPane } from "./StrongsPane";
 import { isProperNoun } from "../utils/morph-tags";
 
@@ -199,7 +200,7 @@ function EnglishCells({
       {englishCols.map((version) => (
         <div
           key={version}
-          className={`cell text-cell ${version === "ylt" ? "text-cell--ylt" : ""}`}
+          className={`cell text-cell${version === "ylt" ? " text-cell--ylt" : ""}${version === "locke" ? " text-cell--locke" : ""}`}
         >
           {isAlignableVersion(version) && verseRow.morph?.length ? (
             <EnglishVerseCell
@@ -293,7 +294,7 @@ function ContinuousProseColumn({
 
   return (
     <div
-      className={`cell prose-cell prose-cell--${version}${version === "ylt" ? " text-cell--ylt" : ""}`}
+      className={`cell prose-cell prose-cell--${version}${version === "ylt" ? " text-cell--ylt" : ""}${version === "locke" ? " text-cell--locke" : ""}`}
     >
       {rendered.map((entry, index) => (
         <span
@@ -357,6 +358,46 @@ function ContinuousProse({
           scrollTarget={columnIndex === 0}
         />
       ))}
+    </div>
+  );
+}
+
+/** Preface sits in the Locke grid column only (not a full-width bar). */
+function LockePrefaceRow({
+  gridTemplate,
+  showRefs,
+  englishCols,
+  view,
+  continuous,
+}: {
+  gridTemplate: string;
+  showRefs: boolean;
+  englishCols: EnglishVersion[];
+  view: DerivedViewState;
+  continuous: boolean;
+}) {
+  if (!englishCols.includes("locke")) return null;
+
+  return (
+    <div
+      className="row locke-preface-row"
+      style={{ gridTemplateColumns: gridTemplate }}
+    >
+      {showRefs && !continuous && <div className="cell ref-cell" aria-hidden="true" />}
+      {englishCols.map((version) => (
+        <div
+          key={version}
+          className={`cell locke-preface-cell${version === "locke" ? " locke-preface-cell--active" : ""}`}
+        >
+          {version === "locke" ? <LockePrefacePanel /> : null}
+        </div>
+      ))}
+      {!continuous && view.columns.hebrew && (
+        <div className="cell" aria-hidden="true" />
+      )}
+      {!continuous && view.columns.notes && (
+        <div className="cell" aria-hidden="true" />
+      )}
     </div>
   );
 }
@@ -677,6 +718,15 @@ export function ParallelView({
             focusedVersion={focusedVersion}
             onVersionFocus={handleVersionFocus}
             onCollapseFocus={handleCollapseFocus}
+          />
+        )}
+        {view.columns.locke && (
+          <LockePrefaceRow
+            gridTemplate={displayGridTemplate}
+            showRefs={showRefs}
+            englishCols={displayEnglishCols}
+            view={view}
+            continuous={view.continuousMode}
           />
         )}
         {verseBody}
