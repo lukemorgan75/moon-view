@@ -267,7 +267,12 @@ function App({
 
   return (
     <div className="app">
-      <Toolbar prefs={prefs} loading={loading} onUpdate={update} />
+      <Toolbar
+        prefs={prefs}
+        loading={loading}
+        onUpdate={update}
+        focusedVersion={focusedVersion}
+      />
 
       {error && <p className="error-banner">{error}</p>}
 

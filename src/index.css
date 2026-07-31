@@ -386,6 +386,14 @@ body {
   transition: background 0.15s ease;
 }
 
+button.toolbar-nav-link--button {
+  appearance: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+}
+
 .toolbar-nav-link:hover {
   background: var(--btn-hover);
   text-decoration: none;

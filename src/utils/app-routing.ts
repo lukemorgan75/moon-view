@@ -373,6 +373,52 @@ export function infoHref(): string {
   return "#info";
 }
 
+/** Vite base path ending with `/` (e.g. `/` or `/moon-view/`). */
+function siteBase(): string {
+  const base = import.meta.env.BASE_URL || "/";
+  return base.endsWith("/") ? base : `${base}/`;
+}
+
+/**
+ * Plain-HTML listen page for Speechify / URL importers that do not run the SPA.
+ * These files are generated at build time under `/s/…`.
+ *
+ * @param scope `chapter` → one chapter; `book` → full book (natural continuous view).
+ */
+export function speechifyReaderHref(
+  corpus: Corpus,
+  book: string,
+  chapter: number | undefined,
+  version: EnglishVersion,
+  scope: "chapter" | "book" = "chapter",
+): string {
+  const slug = bookToSlug(book);
+  const root = `${siteBase()}s/${corpus}/${slug}`;
+  if (scope === "book" || chapter == null) {
+    return `${root}/${version}.html`;
+  }
+  const ch = clampChapter(book, chapter);
+  return `${root}/${ch}/${version}.html`;
+}
+
+export function speechifyRevelationHref(
+  chapter?: number,
+  scope: "chapter" | "book" = "chapter",
+): string {
+  if (scope === "book" || chapter == null) {
+    return `${siteBase()}s/revelation.html`;
+  }
+  const ch = Math.max(1, Math.min(22, Math.floor(chapter)));
+  return `${siteBase()}s/revelation/${ch}.html`;
+}
+
+/** Resolve a site path (e.g. `/moon-view/s/…`) to an absolute URL for clipboard. */
+export function toAbsoluteUrl(path: string): string {
+  if (/^https?:\/\//i.test(path)) return path;
+  if (typeof window === "undefined") return path;
+  return new URL(path, window.location.origin).href;
+}
+
 /**
  * Update the hash without pushing history or firing hashchange.
  * Used to keep the address bar in sync as the user changes book/chapter.

@@ -1,6 +1,13 @@
+import { useCallback, useState } from "react";
 import { booksForCorpus, getBookMeta, hasLockeParaphrase } from "../api/book-meta";
-import { homeHref, infoHref } from "../utils/app-routing";
+import {
+  homeHref,
+  infoHref,
+  speechifyReaderHref,
+  toAbsoluteUrl,
+} from "../utils/app-routing";
 import type {
+  EnglishVersion,
   NaturalEnglishVersion,
   ViewMode,
   ViewerPreferences,
@@ -10,6 +17,8 @@ interface ToolbarProps {
   prefs: ViewerPreferences;
   loading: boolean;
   onUpdate: (patch: Partial<ViewerPreferences>) => void;
+  /** Single-column focus in natural mode (drives Speechify version). */
+  focusedVersion?: EnglishVersion | null;
 }
 
 function ModeToggle({
@@ -141,12 +150,55 @@ function MoonMark() {
   );
 }
 
-export function Toolbar({ prefs, loading, onUpdate }: ToolbarProps) {
+function resolveListenVersion(
+  prefs: ViewerPreferences,
+  focusedVersion: EnglishVersion | null | undefined,
+): EnglishVersion {
+  if (focusedVersion) return focusedVersion;
+  const isPaul = prefs.corpus === "paul";
+  if (isPaul) {
+    // Locke letters pair ESV + Locke; other Paulines ship local KJV + ESV.
+    return hasLockeParaphrase(prefs.book) ? "esv" : "kjv";
+  }
+  // Torah static pages are built from local ESV/YLT (KJV/JPS often remote-only).
+  return "esv";
+}
+
+export function Toolbar({
+  prefs,
+  loading,
+  onUpdate,
+  focusedVersion = null,
+}: ToolbarProps) {
   const chapterCount = getBookMeta(prefs.book).chapters;
   const books = booksForCorpus(prefs.corpus);
   const isPaul = prefs.corpus === "paul";
   const showLocke = isPaul && hasLockeParaphrase(prefs.book);
   const bookLabel = isPaul ? "Pauline letter" : "Book of Torah";
+  const [copyState, setCopyState] = useState<"idle" | "ok" | "err">("idle");
+
+  const listenVersion = resolveListenVersion(prefs, focusedVersion);
+  // Natural continuous view is the whole book; chapter pages match the chapter selector.
+  const listenScope = prefs.viewMode === "natural" ? "book" : "chapter";
+  const listenPath = speechifyReaderHref(
+    prefs.corpus,
+    prefs.book,
+    prefs.chapter,
+    listenVersion,
+    listenScope,
+  );
+  const listenHref = toAbsoluteUrl(listenPath);
+
+  const copyListenLink = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(listenHref);
+      setCopyState("ok");
+      window.setTimeout(() => setCopyState("idle"), 1800);
+    } catch {
+      setCopyState("err");
+      window.setTimeout(() => setCopyState("idle"), 2200);
+    }
+  }, [listenHref]);
 
   return (
     <header className="toolbar toolbar--simple">
@@ -222,6 +274,18 @@ export function Toolbar({ prefs, loading, onUpdate }: ToolbarProps) {
             Loading…
           </span>
         )}
+        <button
+          type="button"
+          className="toolbar-nav-link toolbar-nav-link--button"
+          onClick={copyListenLink}
+          title={`Copy plain-text link for Speechify (${listenVersion.toUpperCase()}${listenScope === "book" ? ", full book" : `, ch. ${prefs.chapter}`})`}
+        >
+          {copyState === "ok"
+            ? "Copied"
+            : copyState === "err"
+              ? "Copy failed"
+              : "Copy listen link"}
+        </button>
         <a className="toolbar-nav-link" href={homeHref()}>
           Home
         </a>

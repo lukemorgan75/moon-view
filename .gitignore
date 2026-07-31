@@ -12,6 +12,7 @@ __pycache__
 scripts/.cache
 dist
 dist-ssr
+public/s
 *.local
 
 # Editor directories and files
