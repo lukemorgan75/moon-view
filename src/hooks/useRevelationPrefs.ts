@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import type { ThemeMode } from "../types";
+import { parseRoute } from "../utils/app-routing";
 
 const STORAGE_KEY = "moon-view-revelation-prefs";
 const STORAGE_VERSION = 1;
@@ -20,7 +21,11 @@ const DEFAULTS: RevelationPrefs = {
 
 type Stored = Partial<RevelationPrefs> & { v?: number };
 
-function load(): RevelationPrefs {
+function clampRevChapter(chapter: number): number {
+  return Math.max(1, Math.min(22, Math.floor(chapter)));
+}
+
+function loadFromStorage(): RevelationPrefs {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
@@ -48,13 +53,24 @@ function load(): RevelationPrefs {
           : DEFAULTS.showChapterNumbers,
       chapter:
         typeof saved.chapter === "number" && saved.chapter >= 1
-          ? Math.min(22, Math.floor(saved.chapter))
+          ? clampRevChapter(saved.chapter)
           : DEFAULTS.chapter,
       theme: saved.theme === "papyrus" ? "papyrus" : "dark",
     };
   } catch {
     return DEFAULTS;
   }
+}
+
+function applyHashPlace(base: RevelationPrefs): RevelationPrefs {
+  if (typeof window === "undefined") return base;
+  const route = parseRoute(window.location.hash);
+  if (route.route !== "revelation" || route.chapter == null) return base;
+  return { ...base, chapter: clampRevChapter(route.chapter) };
+}
+
+function load(): RevelationPrefs {
+  return applyHashPlace(loadFromStorage());
 }
 
 export function useRevelationPrefs() {

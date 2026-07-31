@@ -51,8 +51,18 @@ import {
   type RevelationChapter,
 } from "../api/revelation";
 import { isJesusWords } from "../api/revelation-red-letter";
-import { homeHref, infoHref } from "../utils/app-routing";
+import {
+  homeHref,
+  infoHref,
+  replaceAppHash,
+  revelationHref,
+} from "../utils/app-routing";
 import { useRevelationPrefs } from "../hooks/useRevelationPrefs";
+
+export interface RevelationViewProps {
+  urlChapter?: number;
+  urlVerse?: number;
+}
 
 function MoonMark() {
   return (
@@ -148,7 +158,10 @@ function HighlightedVerse({
   return <>{nodes}</>;
 }
 
-export function RevelationView() {
+export function RevelationView({
+  urlChapter,
+  urlVerse,
+}: RevelationViewProps = {}) {
   const { prefs, update } = useRevelationPrefs();
   const [chapters, setChapters] = useState<RevelationChapter[]>([]);
   const [defs, setDefs] = useState<NewtonDefinition[]>([]);
@@ -166,6 +179,31 @@ export function RevelationView() {
   const [introOpen, setIntroOpen] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
   const chapterRefs = useRef<Map<number, HTMLElement>>(new Map());
+
+  // Apply deep-link chapter when hash route changes (not replaceState).
+  const deepLinkKey = `${urlChapter ?? ""}|${urlVerse ?? ""}`;
+  const lastDeepLinkKey = useRef<string | null>(null);
+  useEffect(() => {
+    if (lastDeepLinkKey.current === deepLinkKey) return;
+    lastDeepLinkKey.current = deepLinkKey;
+    if (urlChapter != null && urlChapter >= 1) {
+      const ch = Math.max(1, Math.min(22, Math.floor(urlChapter)));
+      update({ chapter: ch });
+      setVisibleChapter(ch);
+    }
+  }, [deepLinkKey, urlChapter, update]);
+
+  // After first layout scroll, keep address bar in sync with the chapter in view.
+  const urlSyncReady = useRef(false);
+  useEffect(() => {
+    if (!urlSyncReady.current) return;
+    const verseForUrl =
+      urlVerse != null &&
+      (urlChapter == null || urlChapter === visibleChapter)
+        ? urlVerse
+        : undefined;
+    replaceAppHash(revelationHref(visibleChapter, verseForUrl));
+  }, [visibleChapter, urlChapter, urlVerse]);
 
   useEffect(() => {
     let cancelled = false;
@@ -269,18 +307,40 @@ export function RevelationView() {
     if (visibleChapter >= 1) update({ chapter: visibleChapter });
   }, [visibleChapter, update]);
 
-  // Initial scroll to saved chapter once after load
+  // Initial scroll to deep-linked or saved chapter / verse once after load
   const didInitialScroll = useRef(false);
   useEffect(() => {
     if (loading || !chapters.length || didInitialScroll.current) return;
     didInitialScroll.current = true;
-    const el = chapterRefs.current.get(prefs.chapter);
-    if (el && prefs.chapter > 1) {
-      requestAnimationFrame(() => {
+
+    const targetChapter = prefs.chapter;
+    const targetVerse =
+      urlVerse != null &&
+      (urlChapter == null || urlChapter === targetChapter)
+        ? urlVerse
+        : null;
+
+    // Write the intended deep link immediately (before scroll observers fire).
+    replaceAppHash(revelationHref(targetChapter, targetVerse ?? undefined));
+
+    requestAnimationFrame(() => {
+      if (targetVerse != null) {
+        const verseEl = document.getElementById(
+          `rev-${targetChapter}-${targetVerse}`,
+        );
+        if (verseEl) {
+          verseEl.scrollIntoView({ behavior: "auto", block: "center" });
+          urlSyncReady.current = true;
+          return;
+        }
+      }
+      const el = chapterRefs.current.get(targetChapter);
+      if (el && targetChapter > 1) {
         el.scrollIntoView({ behavior: "auto", block: "start" });
-      });
-    }
-  }, [loading, chapters, prefs.chapter]);
+      }
+      urlSyncReady.current = true;
+    });
+  }, [loading, chapters, prefs.chapter, urlChapter, urlVerse]);
 
   return (
     <div className="app rev-app">

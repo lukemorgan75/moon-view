@@ -33,14 +33,40 @@ function Root() {
   useEffect(() => {
     const onHash = () => setHash(window.location.hash);
     window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
+    // replaceState does not fire hashchange; popstate covers back/forward to
+    // entries that used pushState. Hash links still use hashchange.
+    window.addEventListener("popstate", onHash);
+    return () => {
+      window.removeEventListener("hashchange", onHash);
+      window.removeEventListener("popstate", onHash);
+    };
   }, []);
 
-  const { route, corpus } = parseRoute(hash);
+  const parsed = parseRoute(hash);
+  const { route, corpus } = parsed;
 
   if (route === "info") return <InfoView />;
-  if (route === "revelation") return <RevelationView />;
-  if (route === "reader" && corpus) return <App corpus={corpus} />;
+  if (route === "revelation") {
+    return (
+      <RevelationView
+        urlChapter={parsed.chapter}
+        urlVerse={parsed.verse}
+      />
+    );
+  }
+  if (route === "reader" && corpus) {
+    return (
+      <App
+        corpus={corpus}
+        urlBook={parsed.book}
+        urlChapter={parsed.chapter}
+        urlVerse={parsed.verse}
+        urlCol={parsed.col}
+        urlMode={parsed.mode}
+        urlEng={parsed.eng}
+      />
+    );
+  }
   return <CorpusHome />;
 }
 

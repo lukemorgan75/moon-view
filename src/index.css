@@ -2808,159 +2808,13 @@ body.splash-active {
   }
 }
 
-/* Paul — envelope open */
-.hub-fx--envelope {
-  background: rgba(0, 0, 0, 0.55);
-  animation: hub-fx-fade-in 0.15s ease-out both;
-  perspective: 900px;
-}
-
-.hub-fx-envelope {
-  position: relative;
-  width: min(72vw, 22rem);
-  height: min(48vw, 14rem);
-  transform-style: preserve-3d;
-  animation: hub-envelope-rise 1.15s ease-out both;
-}
-
-.hub-fx-envelope-back {
-  position: absolute;
-  inset: 0;
-  border-radius: 0.35rem;
-  background: linear-gradient(160deg, #f0e6d2 0%, #d9c9a8 55%, #c4b08a 100%);
-  box-shadow:
-    0 18px 40px rgba(0, 0, 0, 0.45),
-    0 0 0 1px rgba(255, 248, 230, 0.35);
-}
-
-.hub-fx-envelope-body {
-  position: absolute;
-  inset: 0;
-  border-radius: 0.35rem;
-  background: linear-gradient(180deg, #e8dcc4 0%, #d4c2a0 100%);
-  clip-path: polygon(0 32%, 50% 68%, 100% 32%, 100% 100%, 0 100%);
-  z-index: 3;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    inset 0 -1px 0 rgba(90, 70, 40, 0.12);
-}
-
-.hub-fx-envelope-flap {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 58%;
-  transform-origin: top center;
-  background: linear-gradient(180deg, #f7f0e2 0%, #e0d0b0 100%);
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-  z-index: 4;
-  animation: hub-envelope-flap 1.05s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.22);
-  border-bottom: 1px solid rgba(90, 70, 40, 0.12);
-}
-
-.hub-fx-envelope-letter {
-  position: absolute;
-  left: 8%;
-  right: 8%;
-  top: 18%;
-  height: 72%;
-  border-radius: 0.2rem;
-  background: linear-gradient(180deg, #ffffff 0%, #f4f0e8 100%);
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.55rem;
-  padding: 1.1rem 1rem 0.85rem;
-  box-shadow:
-    0 6px 18px rgba(0, 0, 0, 0.28),
-    0 0 0 1px rgba(40, 30, 20, 0.08);
-  animation: hub-envelope-letter 1.1s cubic-bezier(0.2, 0.75, 0.2, 1) 0.12s both;
-  color: #2a1f14;
-}
-
-.hub-fx-envelope-letter-line {
-  display: block;
-  height: 3px;
-  border-radius: 2px;
-  background: rgba(62, 42, 24, 0.28);
-}
-
-.hub-fx-envelope-letter-line--short {
-  width: 55%;
-}
-
-.hub-fx-envelope-seal {
-  margin-top: auto;
-  align-self: flex-end;
-  font-size: 0.75rem;
-  font-weight: 650;
-  letter-spacing: 0.04em;
-  color: rgba(40, 28, 16, 0.72);
-  font-family: Georgia, "Times New Roman", serif;
-}
-
-.hub-fx-envelope-veil {
-  position: absolute;
-  inset: 0;
-  background: #000;
-  opacity: 0;
-  animation: hub-envelope-veil 1.2s ease-in forwards;
-}
-
-@keyframes hub-envelope-rise {
-  from {
-    transform: translateY(18px) scale(0.92);
-    opacity: 0;
-  }
-  18% {
-    opacity: 1;
-  }
-  to {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes hub-envelope-flap {
-  0% {
-    transform: rotateX(0deg);
-  }
-  100% {
-    transform: rotateX(188deg);
-  }
-}
-
-@keyframes hub-envelope-letter {
-  0% {
-    transform: translateY(28%);
-    opacity: 0.4;
-  }
-  100% {
-    transform: translateY(-42%);
-    opacity: 1;
-  }
-}
-
-@keyframes hub-envelope-veil {
-  0%,
-  70% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-/* Revelation — emerald glow + falling swords */
-.hub-fx--sword {
+/* Revelation — emerald glow only */
+.hub-fx--emerald {
   background: rgba(0, 0, 0, 0.35);
   animation: hub-fx-fade-in 0.12s ease-out both;
 }
 
-.hub-fx-sword-glow {
+.hub-fx-emerald-glow {
   position: absolute;
   width: min(70vw, 28rem);
   height: min(70vw, 28rem);
@@ -2971,31 +2825,10 @@ body.splash-active {
     rgba(16, 185, 129, 0.12) 42%,
     transparent 70%
   );
-  animation: hub-sword-glow 1.45s ease-out forwards;
+  animation: hub-emerald-glow 1.15s ease-out forwards;
 }
 
-.hub-fx-sword-wrap {
-  position: absolute;
-  top: -24vh;
-  left: var(--sword-left, 50%);
-  width: min(14vw, 4rem);
-  margin-left: calc(min(14vw, 4rem) / -2);
-  z-index: 2;
-  /* Point-down cast — accelerates off-screen */
-  animation: hub-sword-cast var(--sword-duration, 1.4s)
-    cubic-bezier(0.33, 0.02, 0.7, 0.2) var(--sword-delay, 0s) both;
-  will-change: transform, opacity;
-}
-
-.hub-fx-sword {
-  display: block;
-  width: 100%;
-  height: auto;
-  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4))
-    drop-shadow(0 0 10px rgba(200, 220, 255, 0.35));
-}
-
-.hub-fx-sword-veil {
+.hub-fx-emerald-veil {
   position: absolute;
   inset: 0;
   background: radial-gradient(
@@ -3004,10 +2837,10 @@ body.splash-active {
     #000 70%
   );
   opacity: 0;
-  animation: hub-sword-veil 1.5s ease-in forwards;
+  animation: hub-emerald-veil 1.2s ease-in forwards;
 }
 
-@keyframes hub-sword-glow {
+@keyframes hub-emerald-glow {
   0% {
     transform: scale(0.4);
     opacity: 0;
@@ -3021,25 +2854,9 @@ body.splash-active {
   }
 }
 
-@keyframes hub-sword-cast {
-  0% {
-    transform: translateY(0) rotate(calc(var(--sword-spin, 12deg) * -0.25))
-      scale(var(--sword-scale, 0.8));
-    opacity: 0;
-  }
-  6% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(135vh) rotate(var(--sword-spin, 12deg))
-      scale(calc(var(--sword-scale, 0.8) * 0.95));
-    opacity: 0.8;
-  }
-}
-
-@keyframes hub-sword-veil {
+@keyframes hub-emerald-veil {
   0%,
-  65% {
+  55% {
     opacity: 0;
   }
   100% {

@@ -7,6 +7,7 @@ import {
   isKnownBook,
   type Corpus,
 } from "../api/book-meta";
+import { parseRoute } from "../utils/app-routing";
 
 const STORAGE_KEY = "moon-view-prefs";
 
@@ -30,7 +31,7 @@ function sanitizeBook(book: string | undefined, corpus: Corpus): string {
   return defaultBookForCorpus(corpus);
 }
 
-function loadPreferences(): ViewerPreferences {
+function loadFromStorage(): ViewerPreferences {
   try {
     const raw =
       localStorage.getItem(STORAGE_KEY) ??
@@ -88,6 +89,59 @@ function loadPreferences(): ViewerPreferences {
   } catch {
     return DEFAULT_PREFERENCES;
   }
+}
+
+/** Merge deep-link place from the current hash over stored prefs (URL wins). */
+function applyHashPlace(base: ViewerPreferences): ViewerPreferences {
+  if (typeof window === "undefined") return base;
+  const route = parseRoute(window.location.hash);
+  if (route.route !== "reader" || !route.corpus) return base;
+
+  const corpus = route.corpus;
+  const book = route.book
+    ? sanitizeBook(route.book, corpus)
+    : sanitizeBook(base.lastBookByCorpus[corpus] ?? base.book, corpus);
+  const chapter =
+    route.chapter != null
+      ? clampChapter(book, route.chapter)
+      : clampChapter(
+          book,
+          base.lastChapterByCorpus[corpus] ??
+            (base.corpus === corpus ? base.chapter : 1),
+        );
+
+  const next: ViewerPreferences = {
+    ...base,
+    corpus,
+    book,
+    chapter,
+    lastBookByCorpus: { ...base.lastBookByCorpus, [corpus]: book },
+    lastChapterByCorpus: {
+      ...base.lastChapterByCorpus,
+      [corpus]: chapter,
+    },
+  };
+
+  if (route.mode === "natural" || route.mode === "analytic") {
+    next.viewMode = route.mode;
+  }
+  // Single-column focus only exists in natural mode — honor that for Speechify.
+  if (route.col) {
+    next.viewMode = "natural";
+  }
+  if (route.eng === "kjv" || route.eng === "jps") {
+    next.naturalEnglish = route.eng;
+  } else if (route.col === "kjv") {
+    next.naturalEnglish = "kjv";
+  } else if (route.col === "jps") {
+    next.naturalEnglish = "jps";
+  }
+
+  return next;
+}
+
+function loadPreferences(): ViewerPreferences {
+  return applyHashPlace(loadFromStorage());
 }
 
 export function usePreferences() {

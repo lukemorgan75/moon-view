@@ -11,12 +11,11 @@ import { corpusHref, infoHref, revelationHref } from "../utils/app-routing";
 
 const MOON_IMAGE = assetUrl("/images/splash-moon.jpg");
 
-type HubTransition = "torah" | "paul" | "revelation";
+type HubTransition = "torah" | "revelation";
 
 const TRANSITION_MS: Record<HubTransition, number> = {
   torah: 1400,
-  paul: 1200,
-  revelation: 1500,
+  revelation: 1200,
 };
 
 function prefersReducedMotion(): boolean {
@@ -56,100 +55,12 @@ function BigBangBurst() {
   );
 }
 
-function EnvelopeOpen() {
+/** Revelation hub exit: emerald glow only (no falling objects). */
+function EmeraldGlow() {
   return (
-    <div className="hub-fx hub-fx--envelope" aria-hidden="true">
-      <div className="hub-fx-envelope">
-        <div className="hub-fx-envelope-back" />
-        <div className="hub-fx-envelope-letter">
-          <span className="hub-fx-envelope-letter-line" />
-          <span className="hub-fx-envelope-letter-line" />
-          <span className="hub-fx-envelope-letter-line hub-fx-envelope-letter-line--short" />
-          <span className="hub-fx-envelope-seal">Παῦλος</span>
-        </div>
-        <div className="hub-fx-envelope-body" />
-        <div className="hub-fx-envelope-flap" />
-      </div>
-      <div className="hub-fx-envelope-veil" />
-    </div>
-  );
-}
-
-function SwordSvg({ id }: { id: string }) {
-  return (
-    <svg
-      className="hub-fx-sword"
-      viewBox="0 0 32 96"
-      xmlns="http://www.w3.org/2000/svg"
-      role="presentation"
-    >
-      <defs>
-        <linearGradient id={`${id}-blade`} x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#c8d4e4" />
-          <stop offset="45%" stopColor="#f4f7fb" />
-          <stop offset="100%" stopColor="#8fa3bc" />
-        </linearGradient>
-        <linearGradient id={`${id}-hilt`} x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#f0d78c" />
-          <stop offset="100%" stopColor="#9a7420" />
-        </linearGradient>
-        <linearGradient id={`${id}-gem`} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#6fffc0" />
-          <stop offset="100%" stopColor="#0d8f5b" />
-        </linearGradient>
-      </defs>
-      {/* Point-down blade (cast downward) */}
-      <path
-        d="M16 90 L10 28 L16 24 L22 28 Z"
-        fill={`url(#${id}-blade)`}
-        stroke="#e8eef6"
-        strokeWidth="0.6"
-      />
-      <path d="M16 88 L15.2 30 L16.8 30 Z" fill="rgba(255,255,255,0.45)" />
-      {/* Guard */}
-      <rect
-        x="6"
-        y="24"
-        width="20"
-        height="4"
-        rx="1"
-        fill={`url(#${id}-hilt)`}
-      />
-      {/* Grip */}
-      <rect
-        x="13"
-        y="10"
-        width="6"
-        height="15"
-        rx="1.2"
-        fill={`url(#${id}-hilt)`}
-      />
-      {/* Pommel */}
-      <circle cx="16" cy="8" r="3.4" fill={`url(#${id}-hilt)`} />
-      <circle cx="16" cy="8" r="1.6" fill={`url(#${id}-gem)`} />
-    </svg>
-  );
-}
-
-function SwordFall() {
-  return (
-    <div className="hub-fx hub-fx--sword" aria-hidden="true">
-      <div className="hub-fx-sword-glow" />
-      <span
-        className="hub-fx-sword-wrap"
-        style={
-          {
-            "--sword-left": "50%",
-            "--sword-delay": "0s",
-            "--sword-duration": "1.4s",
-            "--sword-spin": "14deg",
-            "--sword-scale": "1.15",
-          } as CSSProperties
-        }
-      >
-        <SwordSvg id="hub-sword-0" />
-      </span>
-      <div className="hub-fx-sword-veil" />
+    <div className="hub-fx hub-fx--emerald" aria-hidden="true">
+      <div className="hub-fx-emerald-glow" />
+      <div className="hub-fx-emerald-veil" />
     </div>
   );
 }
@@ -179,7 +90,7 @@ export function CorpusHome() {
   const onCardClick = useCallback(
     (
       event: MouseEvent<HTMLAnchorElement>,
-      kind: HubTransition,
+      kind: HubTransition | "paul",
       href: string,
     ) => {
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
@@ -187,6 +98,11 @@ export function CorpusHome() {
       }
       event.preventDefault();
       if (transition) return;
+      // Paul: navigate immediately (no letter/envelope animation).
+      if (kind === "paul") {
+        go(href);
+        return;
+      }
       navigateAfter(kind, href);
     },
     [navigateAfter, transition],
@@ -274,7 +190,7 @@ export function CorpusHome() {
               </span>
             </a>
             <a
-              className={`hub-card${transition === "paul" ? " hub-card--launching" : ""}`}
+              className="hub-card"
               href={corpusHref("paul")}
               onClick={(e) => onCardClick(e, "paul", corpusHref("paul"))}
             >
@@ -306,8 +222,7 @@ export function CorpusHome() {
       </div>
 
       {transition === "torah" && <BigBangBurst />}
-      {transition === "paul" && <EnvelopeOpen />}
-      {transition === "revelation" && <SwordFall />}
+      {transition === "revelation" && <EmeraldGlow />}
     </div>
   );
 }

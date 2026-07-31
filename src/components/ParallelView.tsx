@@ -37,6 +37,11 @@ interface ParallelViewProps {
   notes: Record<string, string>;
   onNoteChange: (key: string, value: string) => void;
   contentReady: boolean;
+  /** Deep-link verse (`chapter:verse`) — pins and scrolls on load. */
+  focusVerseKey?: string | null;
+  /** Natural-mode single-column focus (URL-backed). */
+  focusedVersion?: EnglishVersion | null;
+  onFocusedVersionChange?: (version: EnglishVersion | null) => void;
 }
 
 function verseKey(chapter: number, verse: number): string {
@@ -409,6 +414,9 @@ export function ParallelView({
   notes,
   onNoteChange,
   contentReady,
+  focusVerseKey = null,
+  focusedVersion: focusedVersionProp = null,
+  onFocusedVersionChange,
 }: ParallelViewProps) {
   const { gridTemplate, showRefs, visibleColumns } = useReaderGrid(view);
   const strongsEnabled =
@@ -478,14 +486,38 @@ export function ParallelView({
     prefs.book,
   );
 
+  // Deep-link verse: pin so restoreReaderPlace scrolls to it.
+  const lastFocusKey = useRef<string | null>(null);
+  useEffect(() => {
+    if (!focusVerseKey) return;
+    if (lastFocusKey.current === focusVerseKey) return;
+    lastFocusKey.current = focusVerseKey;
+    pinVerse(focusVerseKey);
+  }, [focusVerseKey, pinVerse]);
+
   const handleChapterSelect = useCallback(
     (chapter: number) => {
       pinVerse(`${chapter}:1`);
     },
     [pinVerse],
   );
-  const [focusedVersion, setFocusedVersion] = useState<EnglishVersion | null>(
-    null,
+
+  // Controlled from App (URL-synced); local fallback if used without parent.
+  const [localFocusedVersion, setLocalFocusedVersion] =
+    useState<EnglishVersion | null>(null);
+  const focusedVersion =
+    onFocusedVersionChange != null ? focusedVersionProp : localFocusedVersion;
+  const setFocusedVersion = useCallback(
+    (next: EnglishVersion | null | ((prev: EnglishVersion | null) => EnglishVersion | null)) => {
+      const resolve = (prev: EnglishVersion | null) =>
+        typeof next === "function" ? next(prev) : next;
+      if (onFocusedVersionChange) {
+        onFocusedVersionChange(resolve(focusedVersionProp));
+      } else {
+        setLocalFocusedVersion((prev) => resolve(prev));
+      }
+    },
+    [onFocusedVersionChange, focusedVersionProp],
   );
 
   const naturalEnglishCols = useMemo(
@@ -508,13 +540,16 @@ export function ParallelView({
   const columnFocusEnabled = view.continuousMode;
   const columnFocusDockRef = useRef<HTMLDivElement>(null);
 
-  const handleVersionFocus = useCallback((version: EnglishVersion) => {
-    setFocusedVersion((current) => (current === version ? null : version));
-  }, []);
+  const handleVersionFocus = useCallback(
+    (version: EnglishVersion) => {
+      setFocusedVersion((current) => (current === version ? null : version));
+    },
+    [setFocusedVersion],
+  );
 
   const handleCollapseFocus = useCallback(() => {
     setFocusedVersion(null);
-  }, []);
+  }, [setFocusedVersion]);
 
   useEffect(() => {
     if (!columnFocusEnabled) {
@@ -551,7 +586,14 @@ export function ParallelView({
 
   useEffect(() => {
     if (!view.continuousMode) setFocusedVersion(null);
-  }, [view.continuousMode, prefs.book]);
+  }, [view.continuousMode, prefs.book, setFocusedVersion]);
+
+  // Drop focus if the column isn't available on this book (e.g. KJV on Locke letters).
+  useEffect(() => {
+    if (focusedVersion && !naturalEnglishCols.includes(focusedVersion)) {
+      setFocusedVersion(null);
+    }
+  }, [focusedVersion, naturalEnglishCols, setFocusedVersion]);
 
   useEffect(() => {
     if (!focusedVersion) return;
@@ -562,7 +604,7 @@ export function ParallelView({
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [focusedVersion]);
+  }, [focusedVersion, setFocusedVersion]);
 
   const readerRestoreKey = [
     prefs.viewMode,
