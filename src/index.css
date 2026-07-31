@@ -391,7 +391,9 @@ button.toolbar-nav-link--button {
   background: transparent;
   border: none;
   cursor: pointer;
-  font: inherit;
+  /* Keep .toolbar-nav-link font-size/weight (do not use font: inherit). */
+  font-family: inherit;
+  line-height: inherit;
 }
 
 .toolbar-nav-link:hover {

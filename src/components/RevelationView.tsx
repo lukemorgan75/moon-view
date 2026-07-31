@@ -56,8 +56,6 @@ import {
   infoHref,
   replaceAppHash,
   revelationHref,
-  speechifyRevelationHref,
-  toAbsoluteUrl,
 } from "../utils/app-routing";
 import { useRevelationPrefs } from "../hooks/useRevelationPrefs";
 
@@ -180,7 +178,6 @@ export function RevelationView({
   const [visibleChapter, setVisibleChapter] = useState(prefs.chapter);
   const [introOpen, setIntroOpen] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
-  const [copyState, setCopyState] = useState<"idle" | "ok" | "err">("idle");
   const chapterRefs = useRef<Map<number, HTMLElement>>(new Map());
 
   // Apply deep-link chapter when hash route changes (not replaceState).
@@ -417,30 +414,6 @@ export function RevelationView({
               Loading…
             </span>
           )}
-          <button
-            type="button"
-            className="toolbar-nav-link toolbar-nav-link--button"
-            title="Copy plain-text link for Speechify (current chapter)"
-            onClick={async () => {
-              const href = toAbsoluteUrl(
-                speechifyRevelationHref(visibleChapter, "chapter"),
-              );
-              try {
-                await navigator.clipboard.writeText(href);
-                setCopyState("ok");
-                window.setTimeout(() => setCopyState("idle"), 1800);
-              } catch {
-                setCopyState("err");
-                window.setTimeout(() => setCopyState("idle"), 2200);
-              }
-            }}
-          >
-            {copyState === "ok"
-              ? "Copied"
-              : copyState === "err"
-                ? "Copy failed"
-                : "Copy listen link"}
-          </button>
           <a className="toolbar-nav-link" href={homeHref()}>
             Home
           </a>

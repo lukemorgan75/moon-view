@@ -1,11 +1,7 @@
 import { useCallback, useState } from "react";
 import { booksForCorpus, getBookMeta, hasLockeParaphrase } from "../api/book-meta";
-import {
-  homeHref,
-  infoHref,
-  speechifyReaderHref,
-  toAbsoluteUrl,
-} from "../utils/app-routing";
+import { homeHref, infoHref } from "../utils/app-routing";
+import { downloadNarrativeBookPdf } from "../utils/narrative-export";
 import type {
   EnglishVersion,
   NaturalEnglishVersion,
@@ -17,7 +13,7 @@ interface ToolbarProps {
   prefs: ViewerPreferences;
   loading: boolean;
   onUpdate: (patch: Partial<ViewerPreferences>) => void;
-  /** Single-column focus in natural mode (drives Speechify version). */
+  /** Single-column focus in natural mode (selects export version). */
   focusedVersion?: EnglishVersion | null;
 }
 
@@ -150,18 +146,16 @@ function MoonMark() {
   );
 }
 
-function resolveListenVersion(
+/** Version used for narrative PDF export from current view selection. */
+function resolveExportVersion(
   prefs: ViewerPreferences,
   focusedVersion: EnglishVersion | null | undefined,
 ): EnglishVersion {
   if (focusedVersion) return focusedVersion;
-  const isPaul = prefs.corpus === "paul";
-  if (isPaul) {
-    // Locke letters pair ESV + Locke; other Paulines ship local KJV + ESV.
+  if (prefs.corpus === "paul") {
     return hasLockeParaphrase(prefs.book) ? "esv" : "kjv";
   }
-  // Torah static pages are built from local ESV/YLT (KJV/JPS often remote-only).
-  return "esv";
+  return prefs.naturalEnglish === "jps" ? "jps" : "kjv";
 }
 
 export function Toolbar({
@@ -175,30 +169,26 @@ export function Toolbar({
   const isPaul = prefs.corpus === "paul";
   const showLocke = isPaul && hasLockeParaphrase(prefs.book);
   const bookLabel = isPaul ? "Pauline letter" : "Book of Torah";
-  const [copyState, setCopyState] = useState<"idle" | "ok" | "err">("idle");
+  const [exportState, setExportState] = useState<
+    "idle" | "working" | "err"
+  >("idle");
 
-  const listenVersion = resolveListenVersion(prefs, focusedVersion);
-  // Natural continuous view is the whole book; chapter pages match the chapter selector.
-  const listenScope = prefs.viewMode === "natural" ? "book" : "chapter";
-  const listenPath = speechifyReaderHref(
-    prefs.corpus,
-    prefs.book,
-    prefs.chapter,
-    listenVersion,
-    listenScope,
-  );
-  const listenHref = toAbsoluteUrl(listenPath);
+  const exportVersion = resolveExportVersion(prefs, focusedVersion);
 
-  const copyListenLink = useCallback(async () => {
+  const onDownloadPdf = useCallback(async () => {
+    if (exportState === "working") return;
+    setExportState("working");
     try {
-      await navigator.clipboard.writeText(listenHref);
-      setCopyState("ok");
-      window.setTimeout(() => setCopyState("idle"), 1800);
-    } catch {
-      setCopyState("err");
-      window.setTimeout(() => setCopyState("idle"), 2200);
+      await downloadNarrativeBookPdf(prefs.book, exportVersion);
+      setExportState("idle");
+    } catch (err) {
+      console.error(err);
+      setExportState("err");
+      window.setTimeout(() => setExportState("idle"), 2800);
     }
-  }, [listenHref]);
+  }, [exportState, prefs.book, exportVersion]);
+
+  const versionHint = exportVersion.toUpperCase();
 
   return (
     <header className="toolbar toolbar--simple">
@@ -277,14 +267,15 @@ export function Toolbar({
         <button
           type="button"
           className="toolbar-nav-link toolbar-nav-link--button"
-          onClick={copyListenLink}
-          title={`Copy plain-text link for Speechify (${listenVersion.toUpperCase()}${listenScope === "book" ? ", full book" : `, ch. ${prefs.chapter}`})`}
+          disabled={exportState === "working" || loading}
+          onClick={onDownloadPdf}
+          title={`Download ${prefs.book} as narrative PDF (${versionHint}). Opens print dialog — choose Save as PDF. Focus a column header to pick the version.`}
         >
-          {copyState === "ok"
-            ? "Copied"
-            : copyState === "err"
-              ? "Copy failed"
-              : "Copy listen link"}
+          {exportState === "working"
+            ? "Preparing…"
+            : exportState === "err"
+              ? "Export failed"
+              : "Download PDF"}
         </button>
         <a className="toolbar-nav-link" href={homeHref()}>
           Home

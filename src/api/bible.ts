@@ -415,3 +415,77 @@ export async function loadParallelVerses(
 export function englishText(row: VerseRow, version: EnglishVersion): string {
   return row.english[version] ?? "";
 }
+
+/**
+ * Full-book English text as narrative paragraphs (no chapter/verse numbers).
+ * One paragraph per chapter; verses joined with spaces.
+ */
+export async function loadNarrativeBook(
+  book: string,
+  version: EnglishVersion,
+): Promise<{ book: string; version: EnglishVersion; paragraphs: string[] }> {
+  const { chapters } = getBookMeta(book);
+  let map: Map<string, string>;
+
+  switch (version) {
+    case "kjv":
+      map = await ensureKjv(book);
+      break;
+    case "jps":
+      map = await ensureJps(book);
+      break;
+    case "esv": {
+      const rec = await ensureEsv(book);
+      map = new Map(Object.entries(rec));
+      break;
+    }
+    case "ylt": {
+      const rec = await ensureYlt(book);
+      map = new Map(Object.entries(rec));
+      break;
+    }
+    case "locke": {
+      const rec = await ensureLocke(book);
+      map = new Map(Object.entries(rec));
+      break;
+    }
+    default:
+      map = new Map();
+  }
+
+  const paragraphs: string[] = [];
+  for (let ch = 1; ch <= chapters; ch++) {
+    const parts: string[] = [];
+    // Walk verses in order (cap at 200 to avoid runaway on bad data).
+    for (let v = 1; v <= 200; v++) {
+      const raw = map.get(`${ch}:${v}`);
+      if (raw == null) {
+        // Allow sparse Locke-style maps: stop after a gap once we have content,
+        // but keep scanning a few verses for holes.
+        if (v > 1 && parts.length > 0) {
+          let more = false;
+          for (let look = v + 1; look <= v + 5; look++) {
+            if (map.has(`${ch}:${look}`)) {
+              more = true;
+              break;
+            }
+          }
+          if (!more) break;
+        }
+        if (v > 30 && parts.length === 0) break;
+        continue;
+      }
+      const text = stripHtml(raw, true).trim();
+      if (text) parts.push(text);
+    }
+    if (parts.length) {
+      paragraphs.push(parts.join(" "));
+    }
+  }
+
+  if (paragraphs.length === 0) {
+    throw new Error(`No ${version.toUpperCase()} text available for ${book}.`);
+  }
+
+  return { book, version, paragraphs };
+}
