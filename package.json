@@ -11,6 +11,8 @@
     "build-data": "python3 scripts/build_data.py",
     "build-ylt": "python3 scripts/build_ylt.py",
     "build-locke": "python3 scripts/build_locke.py",
+    "build-sefaria": "python3 scripts/build_sefaria_texts.py",
+    "build-kjv-torah": "python3 scripts/build_kjv_torah.py",
     "build-hebrew-names": "node scripts/build-hebrew-names.mjs",
     "deploy:pages": "bash scripts/deploy-pages.sh"
   },

@@ -31,6 +31,11 @@ function verseKey(ref: VerseRef): string {
   return `${ref.chapter}:${ref.verse}`;
 }
 
+/** In-flight ensure* promises so concurrent loaders share one network trip. */
+const pendingHebrew = new Map<string, Promise<string[][]>>();
+const pendingJps = new Map<string, Promise<Map<string, string>>>();
+const pendingKjv = new Map<string, Promise<Map<string, string>>>();
+
 let booksIndexPromise: Promise<BookEntry[]> | null = null;
 const sefariaUrlIndex = new Map<string, string>();
 
@@ -86,6 +91,19 @@ async function fetchJson(url: string, label: string): Promise<unknown> {
   return response.json();
 }
 
+/** Prefer a local static asset; return null if missing (caller may fall back). */
+async function tryFetchLocalJson(
+  path: string,
+): Promise<unknown | null> {
+  try {
+    const response = await fetch(assetUrl(path));
+    if (!response.ok) return null;
+    return response.json();
+  } catch {
+    return null;
+  }
+}
+
 function flattenSefaria(
   text: string[][],
   chapterStart: number,
@@ -130,14 +148,36 @@ async function ensureHebrew(book: string): Promise<string[][]> {
   const cached = getOrCreateCachedBook(book);
   if (cached.hebrew) return cached.hebrew;
 
-  await getBooksIndex();
-  const data = (await fetchJson(
-    resolveSefariaUrl(book, HEBREW_VERSION, "Hebrew"),
-    `${book} Hebrew`,
-  )) as { text: string[][] };
+  const inflight = pendingHebrew.get(book);
+  if (inflight) return inflight;
 
-  cached.hebrew = data.text;
-  return cached.hebrew;
+  const promise = (async () => {
+    // Local vendored Torah text (fast, works offline / without CORS proxies).
+    const local = (await tryFetchLocalJson(
+      `/data/bibles/hebrew/${encodeURIComponent(book)}.json`,
+    )) as { text?: string[][] } | null;
+    if (local?.text) {
+      cached.hebrew = local.text;
+      return cached.hebrew;
+    }
+
+    // Remote fallback (dev proxy or production CORS relay — flaky).
+    await getBooksIndex();
+    const data = (await fetchJson(
+      resolveSefariaUrl(book, HEBREW_VERSION, "Hebrew"),
+      `${book} Hebrew`,
+    )) as { text: string[][] };
+
+    cached.hebrew = data.text;
+    return cached.hebrew;
+  })();
+
+  pendingHebrew.set(book, promise);
+  try {
+    return await promise;
+  } finally {
+    pendingHebrew.delete(book);
+  }
 }
 
 async function ensureGreek(book: string): Promise<Record<string, string>> {
@@ -160,35 +200,69 @@ async function ensureJps(book: string): Promise<Map<string, string>> {
   const cached = getOrCreateCachedBook(book);
   if (cached.jps) return cached.jps;
 
-  await getBooksIndex();
-  const data = (await fetchJson(
-    resolveSefariaUrl(book, JPS_VERSION, "English"),
-    `${book} JPS`,
-  )) as { text: string[][] };
+  const inflight = pendingJps.get(book);
+  if (inflight) return inflight;
 
-  cached.jps = flattenSefariaFull(data.text);
-  return cached.jps;
+  const promise = (async () => {
+    const local = (await tryFetchLocalJson(
+      `/data/bibles/jps/${encodeURIComponent(book)}.json`,
+    )) as { text?: string[][] } | null;
+    if (local?.text) {
+      cached.jps = flattenSefariaFull(local.text);
+      return cached.jps;
+    }
+
+    await getBooksIndex();
+    const data = (await fetchJson(
+      resolveSefariaUrl(book, JPS_VERSION, "English"),
+      `${book} JPS`,
+    )) as { text: string[][] };
+
+    cached.jps = flattenSefariaFull(data.text);
+    return cached.jps;
+  })();
+
+  pendingJps.set(book, promise);
+  try {
+    return await promise;
+  } finally {
+    pendingJps.delete(book);
+  }
 }
 
 async function ensureKjv(book: string): Promise<Map<string, string>> {
   const cached = getOrCreateCachedBook(book);
   if (cached.kjv) return cached.kjv;
 
-  const filename = SEFARIA_TO_KJV_FILE[book];
-  if (!filename) throw new Error(`No KJV file mapping for ${book}.`);
+  const inflight = pendingKjv.get(book);
+  if (inflight) return inflight;
 
-  // Prefer local KJV (Pauline books + any vendored OT) for speed; fall back to remote.
-  const localUrl = assetUrl(`/data/bibles/kjv/${encodeURIComponent(filename)}`);
-  let response = await fetch(localUrl);
-  if (!response.ok) {
-    response = await fetch(`${KJV_JSON_BASE}/${filename}`);
+  const promise = (async () => {
+    const filename = SEFARIA_TO_KJV_FILE[book];
+    if (!filename) throw new Error(`No KJV file mapping for ${book}.`);
+
+    // Prefer local KJV (Pauline books + any vendored OT) for speed; fall back to remote.
+    const localUrl = assetUrl(
+      `/data/bibles/kjv/${encodeURIComponent(filename)}`,
+    );
+    let response = await fetch(localUrl);
+    if (!response.ok) {
+      response = await fetch(`${KJV_JSON_BASE}/${filename}`);
+    }
+    if (!response.ok) throw new Error(`Failed to load KJV text for ${book}.`);
+
+    const data = await response.json();
+    const map = parseKjvPayload(data);
+    cached.kjv = map;
+    return map;
+  })();
+
+  pendingKjv.set(book, promise);
+  try {
+    return await promise;
+  } finally {
+    pendingKjv.delete(book);
   }
-  if (!response.ok) throw new Error(`Failed to load KJV text for ${book}.`);
-
-  const data = await response.json();
-  const map = parseKjvPayload(data);
-  cached.kjv = map;
-  return map;
 }
 
 async function ensureEsv(book: string): Promise<Record<string, string>> {
