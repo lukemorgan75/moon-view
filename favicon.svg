@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Moon View">
+  <defs>
+    <radialGradient id="sphere" cx="34%" cy="30%" r="68%">
+      <stop offset="0%" stop-color="#fafbfc"/>
+      <stop offset="38%" stop-color="#d8dce3"/>
+      <stop offset="72%" stop-color="#9aa1ab"/>
+      <stop offset="100%" stop-color="#5f6670"/>
+    </radialGradient>
+    <radialGradient id="shade" cx="78%" cy="48%" r="58%">
+      <stop offset="0%" stop-color="#12151c" stop-opacity="0.96"/>
+      <stop offset="55%" stop-color="#1c2029" stop-opacity="0.82"/>
+      <stop offset="100%" stop-color="#2a303a" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="clip">
+      <circle cx="16" cy="16" r="14.5"/>
+    </clipPath>
+  </defs>
+  <!-- Dark night backdrop so the crescent reads in light browser chrome -->
+  <rect width="32" height="32" rx="7" fill="#12151c"/>
+  <g clip-path="url(#clip)">
+    <circle cx="16" cy="16" r="14.5" fill="url(#sphere)"/>
+    <circle cx="26.5" cy="15" r="14" fill="url(#shade)"/>
+  </g>
+</svg>
