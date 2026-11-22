@@ -1,0 +1,1234 @@
+{
+  "source": {
+    "newton": {
+      "manuscript": "THEM00135",
+      "section": "Definitions",
+      "note": "Revised Definitions section (hd5); cross-ref numbers preserved as newton_def"
+    },
+    "torah_genesis": {
+      "file": "entries_torah_genesis.yaml",
+      "methodology": {
+        "lens": "Common ancient Israelite knowledge of the natural world (pre-modern science). Figures must be supported by how the word is used within the allowed precedent books — not back-propagated from later genres (e.g. no NT readings applied to Genesis).\n",
+        "genre_rules": {
+          "narrative": "Historical narrative (Genesis–Kings, etc.): figures arise from simile, dream reports with in-text interpretation, covenant signs, and poetic speeches embedded in the story. Do not apply prophetic kingdom↔world systems unless the book itself uses them.\n",
+          "prophetic": "Prophetic/apocalyptic: kingdom-world analogies (Newton Definitions) apply when genre and context support them; precedent may include earlier prophets and narrative background.\n",
+          "law": "Legal texts: figurative language only where the legal discourse itself uses it (e.g. extended metaphor in parenesis), not imported prophetic codes.\n"
+        }
+      }
+    },
+    "scope_bible": {
+      "file": "entries_scope_bible.yaml",
+      "note": "Cross-biblical scoped senses by genre and book"
+    },
+    "sense_layers": {
+      "file": "entries_sense_layers.yaml",
+      "genre_taxonomy": "genre_taxonomy.yaml",
+      "note": "Pan-biblical canon_senses and genre_senses layered above book scope"
+    },
+    "man_anatomy": {
+      "file": "entries_man_anatomy.yaml",
+      "note": "Man body parts — Scripture-primary; Genesis precedent for narrative members"
+    }
+  },
+  "version": 1,
+  "entries": [
+    {
+      "id": "frame_heaven_earth",
+      "label": "Frame of heaven and earth",
+      "newton_def": 1,
+      "sense": "The kingdom compared to the whole frame of heaven and earth.",
+      "role": "category",
+      "parent": null,
+      "roots": [
+        "frame",
+        "heaven",
+        "earth",
+        "world",
+        "universe"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": "Newton's kingdom↔universe frame is prophetic in genre. Genesis uses heaven and earth as created realities (see scoped senses on those entries), not as a political allegory of a kingdom.\n Newton Def. 1 frames the whole prophetic system: kingdom compared to heaven and earth. Genesis scoped senses on sun, moon, star, heaven, earth treat created realities separately. Apply kingdom↔world only in prophe"
+    },
+    {
+      "id": "moon",
+      "label": "Moon",
+      "newton_def": 2,
+      "sense": "The next in dignity after the supreme magistrate.",
+      "role": "metonym",
+      "parent": "frame_heaven_earth",
+      "roots": [
+        "moon"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "star",
+      "label": "Star",
+      "newton_def": 2,
+      "sense": "Princes or inferior kings; later extended to common people (Def 28).",
+      "role": "metonym",
+      "parent": "frame_heaven_earth",
+      "roots": [
+        "star",
+        "stars"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "sun",
+      "label": "Sun",
+      "newton_def": 2,
+      "sense": "The supreme magistrate; kingly power.",
+      "role": "metonym",
+      "parent": "frame_heaven_earth",
+      "roots": [
+        "sun"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "heaven",
+      "label": "Heaven",
+      "newton_def": 3,
+      "sense": "The court, honours, and dignities wherein luminaries and stars are placed.",
+      "role": "metonym",
+      "parent": "frame_heaven_earth",
+      "roots": [
+        "heaven",
+        "heavens"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "earth",
+      "label": "Earth",
+      "newton_def": 4,
+      "sense": "The condition of inferior people; sometimes one of two peoples distinguished from the sea.",
+      "role": "metonym",
+      "parent": "frame_heaven_earth",
+      "roots": [
+        "earth",
+        "land"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "sea",
+      "label": "Sea",
+      "newton_def": 5,
+      "sense": "The condition of inferior people; sometimes one of two peoples distinguished from the earth.",
+      "role": "metonym",
+      "parent": "frame_heaven_earth",
+      "roots": [
+        "sea"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "water",
+      "label": "Waters",
+      "newton_def": 5,
+      "sense": "Peoples or aggregates of nations; sometimes riches or sound doctrine.",
+      "role": "category",
+      "parent": "sea",
+      "roots": [
+        "water",
+        "waters"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "mountain",
+      "label": "Mountain",
+      "newton_def": 7,
+      "sense": "A city, especially the head city (Jerusalem, Babylon); sometimes a temple.",
+      "role": "metonym",
+      "parent": "earth",
+      "roots": [
+        "mountain",
+        "mount"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": "Mountain is highly scope-sensitive: literal landform (dominant in Torah/history), sacred meeting-height (Sinai), prophetic city (Newton), temple-mount (Isa 2/Mic 4), obstacle or destroying power (Zech 4/Jer 51), and apocalyptic kingdom (Dan 2).\n"
+    },
+    {
+      "id": "temple",
+      "label": "Temple",
+      "newton_def": 8,
+      "sense": "A temple; idol-temple when context requires.",
+      "role": "metonym",
+      "parent": "mountain",
+      "roots": [
+        "temple"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "den",
+      "label": "Den",
+      "newton_def": 9,
+      "sense": "Buildings of cities, especially great stone buildings; hiding in dens = shutting idols in temples.",
+      "role": "part",
+      "parent": "mountain",
+      "roots": [
+        "den",
+        "dens"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "rock",
+      "label": "Rock",
+      "newton_def": 9,
+      "sense": "Buildings or ruins of cities; falling rocks upon men = fall of idol-temples upon idols.",
+      "role": "part",
+      "parent": "mountain",
+      "roots": [
+        "rock",
+        "rocks"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "tree",
+      "label": "Tree",
+      "newton_def": 11,
+      "sense": "Great and rich men of divers ranks according to the nature and bigness of the tree.",
+      "role": "category",
+      "parent": "vegetation",
+      "roots": [
+        "tree",
+        "trees"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "vegetation",
+      "label": "Vegetables",
+      "newton_def": 11,
+      "sense": "Men (vegetables as a class).",
+      "role": "category",
+      "parent": "earth",
+      "roots": [
+        "vegetable",
+        "herb",
+        "grass",
+        "plant"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": "Category parent for tree/herb types. Genesis and narrative books use vegetation literally (see herb, tree, fruit scoped senses). Newton's \"men as vegetables\" applies in prophetic rank-systems only.\n"
+    },
+    {
+      "id": "locust",
+      "label": "Locust / insect swarm",
+      "newton_def": 12,
+      "sense": "Numerous armies.",
+      "role": "metonym",
+      "parent": "earth",
+      "roots": [
+        "locust",
+        "locusts",
+        "insect",
+        "swarm"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "wild_beast",
+      "label": "Wild beast",
+      "newton_def": 13,
+      "sense": "Armies; may grow into a kingdom still called a beast.",
+      "role": "metonym",
+      "parent": "earth",
+      "roots": [
+        "beast",
+        "wild beast"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "beast",
+      "label": "Beast (societies)",
+      "newton_def": 14,
+      "sense": "Other societies or sects of men (e.g. frogs) according to their qualities.",
+      "role": "metonym",
+      "parent": "earth",
+      "roots": [
+        "beast",
+        "beasts",
+        "frog",
+        "frogs"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "wilderness",
+      "label": "Wilderness",
+      "newton_def": 15,
+      "sense": "A country wasted by beasts, whether in temporal or spiritual matters.",
+      "role": "metonym",
+      "parent": "earth",
+      "roots": [
+        "wilderness",
+        "desert"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "flesh",
+      "label": "Flesh",
+      "newton_def": 17,
+      "sense": "Riches and money upon which beasts prey.",
+      "role": "metonym",
+      "parent": "earth",
+      "roots": [
+        "flesh"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "fowl",
+      "label": "Fowl of the air",
+      "newton_def": 18,
+      "sense": "Spirits, infectious diseases, troops of horsemen, or army commanders.",
+      "role": "metonym",
+      "parent": "frame_heaven_earth",
+      "roots": [
+        "fowl",
+        "bird",
+        "birds",
+        "eagle",
+        "eagles"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "island",
+      "label": "Island",
+      "newton_def": 19,
+      "sense": "Cities or temples; courts of temples for building temples or altars.",
+      "role": "metonym",
+      "parent": "water",
+      "roots": [
+        "island",
+        "isle",
+        "isles"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "ship",
+      "label": "Ship",
+      "newton_def": 20,
+      "sense": "Buildings for commerce and profit — trading towns to nations, shops to tradesmen, temples to priests.\n",
+      "role": "metonym",
+      "parent": "water",
+      "roots": [
+        "ship",
+        "ships"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "navy",
+      "label": "Navy / war-ships",
+      "newton_def": 21,
+      "sense": "An army.",
+      "role": "metonym",
+      "parent": "water",
+      "roots": [
+        "navy",
+        "warship",
+        "war-ship"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "river",
+      "label": "River",
+      "newton_def": 22,
+      "sense": "Trains of armies running to and fro; or afflux of foreigners.",
+      "role": "part",
+      "parent": "water",
+      "roots": [
+        "river",
+        "rivers",
+        "brook",
+        "stream"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "flood",
+      "label": "Flood / overflowing waters",
+      "newton_def": 23,
+      "sense": "Invasions.",
+      "role": "part",
+      "parent": "water",
+      "roots": [
+        "flood",
+        "floods",
+        "overflow",
+        "deluge"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "reed",
+      "label": "Reed / flag",
+      "newton_def": 25,
+      "sense": "Men (of inferior or common sort in aquatic figures).",
+      "role": "type",
+      "parent": "water",
+      "roots": [
+        "reed",
+        "reeds",
+        "flag",
+        "flags"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "fountain",
+      "label": "Fountain",
+      "newton_def": 26,
+      "sense": "Cities and towns.",
+      "role": "part",
+      "parent": "water",
+      "roots": [
+        "fountain",
+        "fountains",
+        "spring",
+        "springs"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "fish",
+      "label": "Fish",
+      "newton_def": 27,
+      "sense": "Armies or people.",
+      "role": "type",
+      "parent": "water",
+      "roots": [
+        "fish",
+        "fishes"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "cloud",
+      "label": "Cloud",
+      "newton_def": 29,
+      "sense": "Great multitudes of people.",
+      "role": "metonym",
+      "parent": "heaven",
+      "roots": [
+        "cloud",
+        "clouds"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "beast_head",
+      "label": "Head (of beast)",
+      "newton_def": 33,
+      "sense": "Parts of the kingdom, collateral or successive.",
+      "role": "part",
+      "parent": "beast",
+      "roots": [
+        "head",
+        "heads"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "beast_horn",
+      "label": "Horn (of beast)",
+      "newton_def": 34,
+      "sense": "Kings or subordinate kingdoms belonging to that head.",
+      "role": "part",
+      "parent": "beast",
+      "roots": [
+        "horn",
+        "horns"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "beast_body",
+      "label": "Body (of beast)",
+      "newton_def": 40,
+      "sense": "The rest of the kingdom guarded and governed by the other parts.",
+      "role": "part",
+      "parent": "beast",
+      "roots": [
+        "body"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "fire",
+      "label": "Fire",
+      "newton_def": 48,
+      "sense": "Consuming by war (men represented as combustible trees, ships, beasts).",
+      "role": "action",
+      "parent": null,
+      "roots": [
+        "fire"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic",
+        "genesis"
+      ],
+      "note": ""
+    },
+    {
+      "id": "earthquake",
+      "label": "Earthquake",
+      "newton_def": 50,
+      "sense": "Wars and commotions.",
+      "role": "action",
+      "parent": "earth",
+      "roots": [
+        "earthquake",
+        "quake"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "wind",
+      "label": "Wind",
+      "newton_def": 52,
+      "sense": "Long and continued series of war; whirlwinds = very violent destructive wars.",
+      "role": "action",
+      "parent": null,
+      "roots": [
+        "wind",
+        "winds",
+        "whirlwind"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "hail",
+      "label": "Hail",
+      "newton_def": 53,
+      "sense": "Battles with loss to the side on which the tempest falls; aggravated if mixed with fire or blood.",
+      "role": "action",
+      "parent": null,
+      "roots": [
+        "hail"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "rain",
+      "label": "Rain",
+      "newton_def": 54,
+      "sense": "Refreshment of a kingdom by temporal or spiritual blessings; blessing of God.",
+      "role": "part",
+      "parent": "water",
+      "roots": [
+        "rain"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "horseman",
+      "label": "Horseman",
+      "newton_def": 55,
+      "sense": "A warrior or potentate.",
+      "role": "similitude",
+      "parent": null,
+      "roots": [
+        "horseman",
+        "horse",
+        "rider"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "bow",
+      "label": "Bow",
+      "newton_def": 56,
+      "sense": "Victoriousness.",
+      "role": "similitude",
+      "parent": null,
+      "roots": [
+        "bow"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": "Covenant bow in cloud is the separate entry rainbow_covenant (Genesis only). This entry tracks the war-bow and victoriousness similitude elsewhere.\n"
+    },
+    {
+      "id": "altar",
+      "label": "Altar",
+      "newton_def": 58,
+      "sense": "Martyrs.",
+      "role": "similitude",
+      "parent": null,
+      "roots": [
+        "altar"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "church_woman",
+      "label": "Woman (church)",
+      "newton_def": 60,
+      "sense": "The church.",
+      "role": "similitude",
+      "parent": null,
+      "roots": [
+        "woman",
+        "bride",
+        "wife"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": "Most HB ishshah occurrences are literal women in narrative. Prophetic woman- similitudes are book-specific overlays below; do not import church=woman from NT.\n"
+    },
+    {
+      "id": "whore",
+      "label": "Whore",
+      "newton_def": 61,
+      "sense": "An adulterate church; idolatry of the church by whoredom.",
+      "role": "similitude",
+      "parent": "church_woman",
+      "roots": [
+        "whore",
+        "harlot"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "idol",
+      "label": "Idol / idols as men",
+      "newton_def": 63,
+      "sense": "Idols represented as men; hiding in dens = shutting idols in temples.",
+      "role": "similitude",
+      "parent": null,
+      "roots": [
+        "idol",
+        "idols"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "bottomless_pit",
+      "label": "Bottomless pit",
+      "newton_def": 66,
+      "sense": "Springing up of heresies or false religions.",
+      "role": "similitude",
+      "parent": null,
+      "roots": [
+        "pit",
+        "bottomless"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "winepress",
+      "label": "Winepress",
+      "newton_def": 69,
+      "sense": "Slaughter of the wicked (treading a winepress).",
+      "role": "metonym",
+      "parent": "vine",
+      "roots": [
+        "winepress",
+        "wine press"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "man_arm",
+      "label": "Arm",
+      "newton_def": null,
+      "sense": "The arm — upper limb and its strength; outstretched to redeem or to strike.\n",
+      "role": "part",
+      "parent": "man",
+      "roots": [
+        "arm",
+        "arms"
+      ],
+      "scope": [
+        "torah",
+        "historical",
+        "wisdom",
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "man_body",
+      "label": "Body",
+      "newton_def": null,
+      "sense": "The body — flesh and frame of a man; carcass or mass when the text names the body of a beast in a vision.\n",
+      "role": "part",
+      "parent": "man",
+      "roots": [
+        "body",
+        "bodies"
+      ],
+      "scope": [
+        "torah",
+        "historical",
+        "wisdom",
+        "prophetic",
+        "apocalyptic",
+        "gospels"
+      ],
+      "note": ""
+    },
+    {
+      "id": "branch",
+      "label": "Branch",
+      "newton_def": null,
+      "sense": "Part of a tree-figure; rank or subdivision within the tree-metaphor (extensible).",
+      "role": "part",
+      "parent": "tree",
+      "roots": [
+        "branch",
+        "branches"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": "Not explicitly numbered in Newton; structural slot for parts/metonyms."
+    },
+    {
+      "id": "cedar",
+      "label": "Cedar",
+      "newton_def": null,
+      "sense": "Honourable and rich men.",
+      "role": "type",
+      "parent": "tree",
+      "roots": [
+        "cedar",
+        "cedars"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": "Cedar does not appear as a figure in Genesis; Newton sense applies only in prophetic scope."
+    },
+    {
+      "id": "man_eye",
+      "label": "Eye",
+      "newton_def": null,
+      "sense": "The eye — organ of sight; also the seeing of the heart, or eyes named on a figure in a vision.\n",
+      "role": "part",
+      "parent": "man",
+      "roots": [
+        "eye",
+        "eyes"
+      ],
+      "scope": [
+        "torah",
+        "historical",
+        "wisdom",
+        "prophetic",
+        "apocalyptic",
+        "gospels"
+      ],
+      "note": ""
+    },
+    {
+      "id": "man_face",
+      "label": "Face",
+      "newton_def": null,
+      "sense": "The face (panim) — turned toward or away from another; presence, favor, or anger shown in the countenance.\n",
+      "role": "part",
+      "parent": "man",
+      "roots": [
+        "face",
+        "countenance"
+      ],
+      "scope": [
+        "torah",
+        "historical",
+        "wisdom",
+        "prophetic",
+        "apocalyptic",
+        "gospels"
+      ],
+      "note": ""
+    },
+    {
+      "id": "man_foot",
+      "label": "Foot",
+      "newton_def": null,
+      "sense": "The foot — walks, stands, is washed, or tramples; also the low place beneath a throne when heaven and earth are named together.\n",
+      "role": "part",
+      "parent": "man",
+      "roots": [
+        "foot",
+        "feet"
+      ],
+      "scope": [
+        "torah",
+        "historical",
+        "wisdom",
+        "prophetic",
+        "apocalyptic",
+        "gospels"
+      ],
+      "note": ""
+    },
+    {
+      "id": "man_forehead",
+      "label": "Forehead",
+      "newton_def": null,
+      "sense": "The forehead — brow seen openly; marked in visions when allegiance or sparing is shown on the face.\n",
+      "role": "part",
+      "parent": "man",
+      "roots": [
+        "forehead",
+        "brow"
+      ],
+      "scope": [
+        "torah",
+        "historical",
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "fruit",
+      "label": "Fruit",
+      "newton_def": null,
+      "sense": "Produce or outcome of a tree-figure (extensible for Genesis botany).",
+      "role": "part",
+      "parent": "tree",
+      "roots": [
+        "fruit",
+        "fruits"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "man_hand",
+      "label": "Hand",
+      "newton_def": null,
+      "sense": "The hand — grasps, works, strikes, blesses, or gives; what a man does with strength at the end of his arm.\n",
+      "role": "part",
+      "parent": "man",
+      "roots": [
+        "hand",
+        "hands"
+      ],
+      "scope": [
+        "torah",
+        "historical",
+        "wisdom",
+        "prophetic",
+        "apocalyptic",
+        "gospels"
+      ],
+      "note": ""
+    },
+    {
+      "id": "man_head",
+      "label": "Head",
+      "newton_def": null,
+      "sense": "The head — crown of the body; first in rank when the text names headship (rosh), whether on a man or on a figure in a vision.\n",
+      "role": "part",
+      "parent": "man",
+      "roots": [
+        "head"
+      ],
+      "scope": [
+        "torah",
+        "historical",
+        "wisdom",
+        "prophetic",
+        "apocalyptic",
+        "gospels"
+      ],
+      "note": ""
+    },
+    {
+      "id": "man_heart",
+      "label": "Heart",
+      "newton_def": null,
+      "sense": "The heart (lev) — inward seat of thought, desire, courage, and turning; what the man purposes though none sees it.\n",
+      "role": "part",
+      "parent": "man",
+      "roots": [
+        "heart",
+        "hearts"
+      ],
+      "scope": [
+        "torah",
+        "historical",
+        "wisdom",
+        "prophetic",
+        "gospels"
+      ],
+      "note": ""
+    },
+    {
+      "id": "man_heel",
+      "label": "Heel",
+      "newton_def": null,
+      "sense": "The heel — back of the foot; grasped at birth, wounded in enmity, or trodden underfoot.\n",
+      "role": "part",
+      "parent": "man",
+      "roots": [
+        "heel",
+        "heels"
+      ],
+      "scope": [
+        "torah",
+        "historical",
+        "wisdom",
+        "prophetic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "herb",
+      "label": "Herb / grass",
+      "newton_def": null,
+      "sense": "Inferior people.",
+      "role": "type",
+      "parent": "vegetation",
+      "roots": [
+        "herb",
+        "herbs",
+        "grass"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "leaf",
+      "label": "Leaf",
+      "newton_def": null,
+      "sense": "Used in similitude (stars falling as a leaf from a tree, Def 65); part-level detail within tree figures.\n",
+      "role": "part",
+      "parent": "tree",
+      "roots": [
+        "leaf",
+        "leaves"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "man",
+      "label": "Man",
+      "newton_def": null,
+      "sense": "A man — a male person (ish), a mortal (enosh), or men as people where the sentence uses the word. The ordinary human figure any hearer knows from daily life.\n",
+      "role": "category",
+      "parent": "earth",
+      "roots": [
+        "man",
+        "men"
+      ],
+      "scope": [
+        "torah",
+        "historical",
+        "wisdom",
+        "prophetic",
+        "apocalyptic",
+        "gospels"
+      ],
+      "note": ""
+    },
+    {
+      "id": "man_mouth",
+      "label": "Mouth",
+      "newton_def": null,
+      "sense": "The mouth — speech, command, and food pass through it; what speaks great things when the vision names a mouth.\n",
+      "role": "part",
+      "parent": "man",
+      "roots": [
+        "mouth"
+      ],
+      "scope": [
+        "torah",
+        "historical",
+        "wisdom",
+        "prophetic",
+        "apocalyptic",
+        "gospels"
+      ],
+      "note": ""
+    },
+    {
+      "id": "oak",
+      "label": "Oak",
+      "newton_def": null,
+      "sense": "Men of strength and power.",
+      "role": "type",
+      "parent": "tree",
+      "roots": [
+        "oak",
+        "oaks"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "shrub",
+      "label": "Shrub",
+      "newton_def": null,
+      "sense": "Men of middle degree.",
+      "role": "type",
+      "parent": "tree",
+      "roots": [
+        "shrub",
+        "shrubs"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "man_side",
+      "label": "Side",
+      "newton_def": null,
+      "sense": "The side — flank of the body, or a quarter named from the body (tsela, yarek).\n",
+      "role": "part",
+      "parent": "man",
+      "roots": [
+        "side",
+        "sides"
+      ],
+      "scope": [
+        "torah",
+        "historical",
+        "prophetic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "smoking_furnace",
+      "label": "Smoking furnace",
+      "newton_def": null,
+      "sense": "Smoking oven and flaming torch passing between pieces — theophanic emblems in Abram's covenant-cutting (Gen 15), signifying God's binding oath in that rite.\n",
+      "role": "similitude",
+      "parent": null,
+      "roots": [
+        "furnace",
+        "oven",
+        "smoking"
+      ],
+      "scope": [
+        "torah",
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    },
+    {
+      "id": "vine",
+      "label": "Vine",
+      "newton_def": null,
+      "sense": "The rich and delicate; sometimes the wicked.",
+      "role": "type",
+      "parent": "tree",
+      "roots": [
+        "vine",
+        "vines"
+      ],
+      "scope": [
+        "prophetic",
+        "apocalyptic"
+      ],
+      "note": ""
+    }
+  ]
+}

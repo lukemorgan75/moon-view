@@ -1,0 +1,276 @@
+/* The guide sits on the same sheet as the diagram. No minimap, so the
+   mast and the bar use the full width. */
+body.guide-page .mast,
+body.guide-page .top {
+  padding-right: 18px;
+}
+body.guide-page {
+  padding-bottom: 48px;
+}
+.guide-mast .legend { max-width: 72rem; }
+.guide-top {
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+.guide-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+}
+.guide-nav .text-btn[href^="#"] { color: var(--muted); }
+.guide-nav .text-btn[href^="#"]:hover { color: var(--ink); }
+
+#guide {
+  padding: 8px 18px 64px;
+  max-width: 1100px;
+}
+.guide-note {
+  margin: 16px 0 8px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 72rem;
+}
+.section-lead {
+  margin: 6px 0 14px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+  max-width: 72rem;
+}
+#figures h2,
+#treatise h2 {
+  margin: 28px 0 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 26px;
+}
+#figure-find {
+  width: min(320px, 100%);
+  background: #1b1814;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 7px 10px;
+  font-family: var(--sans);
+  font-size: 14px;
+}
+#figure-find:focus {
+  outline: 1px solid var(--gold);
+  border-color: var(--gold);
+}
+
+.deck {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+.card-group {
+  grid-column: 1 / -1;
+  margin: 18px 0 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.card {
+  background: var(--sheet);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  min-height: 92px;
+}
+.card.is-open {
+  grid-column: 1 / -1;
+  border-color: var(--gold-dim);
+}
+.card-face {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  min-height: 92px;
+  padding: 12px 14px;
+  text-align: left;
+  cursor: pointer;
+}
+.card-face:hover { background: #1c1915; }
+.card-face:focus-visible {
+  outline: 1px solid var(--gold);
+  outline-offset: -1px;
+}
+.card-n {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--gold);
+}
+.card-figure {
+  font-family: var(--serif);
+  font-size: 20px;
+  line-height: 1.25;
+  color: var(--ink);
+}
+.card-back {
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--line);
+}
+.proof-btn {
+  margin: 14px 0 0;
+  cursor: pointer;
+  color: var(--gold);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+.proof-btn:hover { color: var(--ink); }
+.proof-btn:focus-visible {
+  outline: 1px solid var(--gold);
+  outline-offset: 2px;
+}
+.proof {
+  margin-top: 12px;
+  padding-top: 4px;
+  border-top: 1px solid var(--line);
+}
+.proof-cap,
+.proof-src {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.proof-src {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+}
+.reading + .reading {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.reading-label {
+  margin: 12px 0 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.col-original,
+.col-modern {
+  margin: 8px 0 0;
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.5;
+}
+.col-modern { color: var(--ink); }
+.col-original { color: #f3eadc; }
+.kind {
+  display: block;
+  margin-bottom: 4px;
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+body[data-lang="his"] .col-modern { display: none; }
+body[data-lang="today"] .col-original { display: none; }
+body[data-lang="both"] .para > summary .col-modern { display: none; }
+
+.book, .section, .para {
+  border-bottom: 1px solid var(--line);
+}
+.book { margin-top: 8px; }
+.section { margin-left: 0; }
+.para { margin-left: 12px; }
+.book > summary,
+.section > summary,
+.para > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 10px 4px;
+}
+.book > summary::-webkit-details-marker,
+.section > summary::-webkit-details-marker,
+.para > summary::-webkit-details-marker { display: none; }
+.book > summary::before,
+.section > summary::before,
+.para > summary::before {
+  content: "▸";
+  display: inline-block;
+  width: 1.1em;
+  color: var(--gold);
+}
+.book[open] > summary::before,
+.section[open] > summary::before,
+.para[open] > summary::before { content: "▾"; }
+.book > summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: baseline;
+}
+.book-id {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--gold);
+}
+.book-sec {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--dim);
+}
+.book-blurb {
+  font-family: var(--serif);
+  font-size: 18px;
+}
+.book-body { padding: 0 0 12px 1.2em; }
+.book-title {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.book-link { font-size: 13px; }
+.section > summary {
+  font-family: var(--serif);
+  font-size: 17px;
+}
+.section-count {
+  margin-left: 8px;
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--dim);
+}
+.section-note,
+.para-note {
+  margin: 4px 0 10px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.para > summary {
+  color: var(--muted);
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.4;
+}
+.para[open] > summary { color: var(--ink); }
+.para-body { padding: 0 0 12px 1.2em; }
+.wording + .wording {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+@media (max-width: 640px) {
+  .deck { grid-template-columns: 1fr 1fr; }
+  .card.is-open { grid-column: 1 / -1; }
+  .card-figure { font-size: 17px; }
+  .col-original, .col-modern { font-size: 16px; }
+}

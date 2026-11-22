@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Apocalypse in Newton’s order · Schematic wing</title>
+<link rel="stylesheet" href="styles.css">
+<meta name="description" content="Schematic wing of Moon View. The Apocalypse in Newton’s order.">
+</head>
+<body>
+<p class="wing-name">Schematic wing of <a href="../">Moon View</a></p>
+<div class="mast">
+  <div class="brand">
+    <p class="eyebrow">Yahuda MS 7.2a · A Synopsis of the Synchronisms</p>
+    <h1>The Apocalypse in Newton’s order</h1>
+  </div>
+  <p class="legend">Time runs downward. A row is one moment. The strip on the right is the whole book, and the lit lines are the words you have open. A panel he left still future says so, and the reader gives that reading. His synopsis is the first diagram. Adjusted is that same chart with Revelation 10 at the end of the 1,260, the eight parts, the millennium day, and the 1,290 and 1,335.</p>
+</div>
+<header class="top">
+  <div class="views" role="tablist" aria-label="How to read">
+    <button type="button" id="view-diagram" role="tab" aria-selected="true">Diagram</button>
+    <button type="button" id="view-order" role="tab">His chronology</button>
+    <button type="button" id="view-book" role="tab">The book</button>
+  </div>
+  <div class="charts" id="chart-switch" role="tablist" aria-label="Which diagram">
+    <button type="button" id="chart-his" role="tab" aria-selected="true">His synopsis</button>
+    <button type="button" id="chart-adjusted" role="tab">Adjusted</button>
+  </div>
+  <div class="top-actions">
+    <form class="jump" id="jump-form">
+      <input id="jump" type="text" placeholder="Go to 12:6" aria-label="Go to a verse, for example 12:6" autocomplete="off" spellcheck="false">
+    </form>
+    <a class="text-btn" href="book.html">The book</a>
+    <a class="text-btn" href="locke.html">Locke</a>
+    <a class="text-btn" href="timeline.html">Timeline</a>
+    <a class="text-btn" href="schematic.html">Schematic</a>
+    <a class="text-btn" href="guide.html">Guide</a>
+    <button type="button" class="text-btn" id="fullscreen" aria-pressed="false">Full screen</button>
+    <button type="button" class="text-btn" id="about-open">Sources</button>
+  </div>
+</header>
+
+<div class="workspace">
+  <main id="stage"></main>
+  <aside id="reader" hidden aria-live="polite"></aside>
+</div>
+
+<aside id="minimap" aria-label="Minimap of Revelation">
+  <div class="map-cap">The book</div>
+  <div id="map-body"></div>
+</aside>
+
+<footer id="status">Click a panel.</footer>
+
+<dialog id="about">
+  <article>
+    <header>
+      <p class="eyebrow">Which diagram, and why</p>
+      <h2>The fullest chart he drew</h2>
+    </header>
+    <p>Newton left several thousand pages on Daniel and the Apocalypse. The early English treatises, especially the “Positions” in Yahuda MS 1, fix the rules: the seals follow one another without overlap; inside the seventh seal the trumpets follow the same way; the trumpets, the thunders, and the vials are one set of seven wars. Yahuda MS 9 and Keynes MS 5 tell that system in prose. In 1691 he sent John Locke a smaller chart of it, now Bodleian MS Locke c. 27, f. 88r. <a href="https://isaacnewton.ca/wp-content/uploads/2013/06/newton_apocalyptic_chart.pdf" target="_blank" rel="noopener">The digitized schematic</a> is a PDF. <a href="https://www.thenewatlantis.com/wp-content/uploads/2015/05/Figure-1-Chart-WEB-L.jpg" target="_blank" rel="noopener">The photograph of the sheet</a> is the original, published with permission of the Bodleian Library.</p>
+    <p>The diagram on this page is the later and fuller drawing, made twice in his own hand and titled “A Synopsis of the Synchronisms of the Apocalypse” (Yahuda MS 7.2a, ff. 36v–39r, after 1700). The National Library of Israel exhibits it under that title. The book published in 1733, <cite>Observations upon the Prophecies of Daniel, and the Apocalypse of St. John</cite>, stops after the temple-structure of the prophecy and does not replace the chart.</p>
+    <p>Where the two copies differ, this page follows the copy that agrees with the historical key on the facing leaf, and with his essay on the fourth trumpet. The third wind is south and the fourth is north. The other copy swaps them. The names of emperors, nations, and years are his, taken from that key and from the essay on the seven heads at the front of the same manuscript. He revised the numbers. On the facing leaf the fifth trumpet lasts 300 years. A later computation in these papers runs the locusts from 609 to 1258. The 1,260 years he sometimes began in 607 and sometimes in 800. The note that lands on 2060, in Yahuda MS 7.3, says the period may end later, and that he wrote the figure to restrain people who announce the day and bring the prophecies into contempt. His synopsis keeps Revelation 10 where the synopsis places it: the eating at the door, the angel on the silence, the thunders before the winds, and the oath on the seventh trumpet. Adjusted moves that chapter to the end of the 1,260, names the eight parts of the seventh seal, calls the seventh trumpet the millennium day, and draws the 1,260, the 1,290, and the 1,335. The eighth part is the seventh trumpet. The same slip gives the bounds. Its end line for the 1,290 stays as written.</p>
+    <p>The words are the King James Version, the text he was condensing onto the chart. Nothing is added to the prophecy. Passages are only carried to the row where he read them. A panel with no words of its own is a thunder, or a wind, or a clause he points back to: John was told not to write the thunders.</p>
+    <ul>
+      <li><a href="https://www.newtonproject.ox.ac.uk/view/texts/normalized/THEM00435">The synopsis, in the manuscript that contains it</a></li>
+      <li><a href="https://isaacnewton.ca/wp-content/uploads/2013/06/newton_apocalyptic_chart.pdf" target="_blank" rel="noopener">The chart he sent Locke, digitized (PDF)</a></li>
+      <li><a href="https://www.thenewatlantis.com/wp-content/uploads/2015/05/Figure-1-Chart-WEB-L.jpg" target="_blank" rel="noopener">The same sheet, photographed (Bodleian MS Locke c. 27, f. 88r)</a></li>
+      <li><a href="https://isaacnewton.ca/apocalyptic-time-chart/">Newton Project Canada, on that chart</a></li>
+      <li><a href="https://www.newtonproject.ox.ac.uk/view/texts/normalized/THEM00137">The early Positions</a></li>
+      <li><a href="guide.html">The guide in the early treatise, from THEM00135 on</a></li>
+      <li><a href="schematic.html">The same order drawn again, with both drafts kept where he does not mark the last</a></li>
+      <li><a href="book.html">The book in the order of the chapters</a></li>
+      <li><a href="locke.html">An adaptation of the sheet he sent Locke</a></li>
+      <li><a href="https://www.newtonproject.ox.ac.uk/view/texts/normalized/THEM00194">Observations (1733), contents</a></li>
+    </ul>
+    <form method="dialog"><button type="submit" class="text-btn">Close</button></form>
+  </article>
+</dialog>
+
+<script src="revelation.js"></script>
+<script src="data.js"></script>
+<script src="adjusted.js"></script>
+<script src="readings.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

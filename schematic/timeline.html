@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" class="timeline-page">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Timeline · The Apocalypse in Newton’s order · Schematic wing</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="timeline.css">
+<meta name="description" content="Schematic wing of Moon View. The Apocalypse in Newton’s order.">
+</head>
+<body class="timeline-page">
+<p class="wing-name">Schematic wing of <a href="../">Moon View</a></p>
+<div class="mast tl-mast">
+  <div class="brand">
+    <p class="eyebrow">Short Chronicle · Observations · Yahuda · Keynes</p>
+    <h1>What he dated, and what came after</h1>
+  </div>
+  <p class="legend">Newest at the top. The scale runs from 1 Tishrei of Hebrew year 1 to his latest written term, 2060, and far enough past today that an offset still lands. A gold card is an event he dates. A clay card is a later event of the same kind, or a date that could be known only after him. Clay cards are not his readings.</p>
+</div>
+<header class="top tl-top">
+  <div class="tl-tools">
+    <div class="group" role="group" aria-label="Zoom">
+      <button type="button" class="chip" id="zoom-out" aria-label="Zoom out">−</button>
+      <input id="zoom" type="range" min="0" max="1000" value="280" aria-label="Zoom">
+      <button type="button" class="chip" id="zoom-in" aria-label="Zoom in">+</button>
+      <button type="button" class="chip" id="zoom-fit">Fit</button>
+    </div>
+    <div class="group views" role="group" aria-label="Panes">
+      <button type="button" id="split" aria-pressed="true">Two panes</button>
+    </div>
+    <div class="group views" id="sync" role="group" aria-label="How the panes scroll">
+      <button type="button" data-sync="separate" aria-selected="false">Separate</button>
+      <button type="button" data-sync="offset" aria-selected="true">Offset</button>
+    </div>
+    <div class="group views" id="offset-dir" role="group" aria-label="Whether the offset looks later or earlier">
+      <button type="button" id="off-later" aria-pressed="true">Later</button>
+      <button type="button" id="off-earlier" aria-pressed="false">Earlier</button>
+    </div>
+    <div class="group" id="offset-chips" role="group" aria-label="Year offset">
+      <button type="button" class="chip" data-off="49">49</button>
+      <button type="button" class="chip" data-off="434">434</button>
+      <button type="button" class="chip" data-off="490">490</button>
+      <button type="button" class="chip" data-off="1260" data-reckon="times" aria-pressed="true">1,260</button>
+      <button type="button" class="chip" data-off="1290">1,290</button>
+      <button type="button" class="chip" data-off="1335">1,335</button>
+      <button type="button" class="chip" data-off="2300">2,300</button>
+      <button type="button" class="chip" data-off="391" data-reckon="hour">391</button>
+      <label>Custom <input id="custom-offset" type="number" value="1260" step="1" aria-label="Custom offset in years"></label>
+    </div>
+    <p class="offset-note" id="offset-note">The right pane is the left pane plus 1,260 years. Time, times, and half a time: three years and a half, twelve months of thirty days, 1,260 days, each day a year.</p>
+    <label>Search <input id="q" type="search" placeholder="Phocas, Cyrus, council" aria-label="Filter by words"></label>
+    <label>Category
+      <select id="cat" aria-label="Category, both panes">
+        <option value="">All</option>
+        <option value="church">Church</option>
+        <option value="chronicle">Chronicle</option>
+        <option value="temple">Temple</option>
+        <option value="passion">Passion</option>
+        <option value="empire">Empire</option>
+        <option value="invasion">Invasion</option>
+        <option value="kingdom">Kingdoms</option>
+        <option value="decree">Decrees</option>
+        <option value="sky">Sky</option>
+        <option value="japan">Japan</option>
+        <option value="quran">Quran</option>
+        <option value="knowledge">Knowledge</option>
+        <option value="reckoning">Reckoning</option>
+        <option value="public">Public life</option>
+      </select>
+    </label>
+    <div class="group">
+      <button type="button" class="text-btn" id="fullscreen" aria-pressed="false">Full screen</button>
+      <button type="button" class="text-btn" id="sources-open">Sources</button>
+      <a class="text-btn" href="index.html">Diagram</a>
+      <a class="text-btn" href="book.html">The book</a>
+      <a class="text-btn" href="locke.html">Locke</a>
+      <a class="text-btn" href="schematic.html">Schematic</a>
+      <a class="text-btn" href="guide.html">Guide</a>
+    </div>
+  </div>
+</header>
+
+<div id="panes" class="panes is-split"></div>
+<footer id="status" class="tl-status"></footer>
+
+<dialog id="sources">
+  <article>
+    <header>
+      <p class="eyebrow">What was read</p>
+      <h2>The dated events, not every folio</h2>
+    </header>
+    <p>Newton’s cards are the year-entries of the Short Chronicle printed in 1728, which is the fair copy in Cambridge University Library MS Add. 3988 and which he drafted in New College Oxford MS 361 and in Yahuda MSS 25 and 26, together with the dated fulfillments in <cite>Observations upon the Prophecies</cite> (1733) and the dates on the prophetic papers this diagram is drawn from: Yahuda MS 7.2a, Yahuda MS 7.3, and Keynes MS 1, the Latin essay on the fourth trumpet. Where a draft names another year for the same act, both years are on the scale. Repeated drafts of one act are one card.</p>
+    <p>That is not every date in the three million words. Yahuda MS 15, the long church history, and the chapter prose of the <cite>Chronology</cite> beyond the Short Chronicle were not copied line by line. Keynes MS 5, King’s College, Cambridge, the two incomplete treatises on prophecy, is cited for the second seal, which he reads as Trajan and the red horse, and for the gloss he gives there on the abomination that maketh desolate. The rest of that manuscript is not copied line by line. A king-list in Observations is represented by the kingdom and the acts he treats as the fulfillment, not by every accession in the list.</p>
+    <p>The clay cards were chosen by the kind of thing he cites: an empire breaking into kingdoms, a capital taken, a decree or a council that changes worship or law, a people crossing a frontier, a temple or a polity restored, a calendar changed, or a manuscript and a chronicle that bear on the texts and the dates he was using. Each card says why it is there. None of them is offered as his prophecy.</p>
+    <p>Another set of clay cards comes from a draft that sets 607 and 610 against 1,260 years, which lands on 1867 and 1870, and 610 against 1,335 years, which lands on 1945. The days on those cards are the days in that draft, corrected where a name or a day was wrong, and the ordinary historical dates behind them. The draft asks whether the extra three years could come from reading 1,290 as evenings and mornings, calendar days rather than years, because the same sentence speaks of the daily sacrifice. That is the draft’s question. It is not a sentence of Newton’s, and it is not offered as a fulfillment. The category menu narrows both panes. Church includes his councils and the papacy, the Pantheon, and the title of universal bishop, as well as the later church cards. Quran includes his own sentences on the Alcoran and the traditional day of the first revelation.</p>
+    <p>A Hebrew date under a full day is the fixed calendar, converted from the Julian or Gregorian day on the card. A year with no day is the one or two Hebrew years that civil year overlaps. Where he himself names a Hebrew date, as 25 Elul or 14 Nisan, that name is in the card, and the fixed calendar is printed beside it. They are not the same reckoning. His 14 Nisan of AD 34 is his reconstruction. The fixed calendar was not the calendar of the first century.</p>
+    <p>The offset is in equal historical years, the way he adds 1,260 to 800 and lands on 2060. He counts the periods on the primitive calendar: twelve months to a year and thirty days to a month. Time, times, and half a time are three years and a half, which is 42 months, which is 1,260 days, and each day is a year. An hour, a day, a month, and a year are 360 + 30 + 1, which he calls 391 prophetic days, and each of those is a year. 1,290, 1,335, and 2,300 are the other day-counts, each day a year. 49, 434, and 490 are the weeks, seven years to a week. Later puts the right pane that many years after the left. Earlier puts it that many years before. A custom number may be negative, which is the same as Earlier. Hebrew years vary in length. These periods are the equal years of that day-for-a-year count.</p>
+    <form method="dialog"><button type="submit" class="text-btn">Close</button></form>
+  </article>
+</dialog>
+
+<script src="timeline-data.js"></script>
+<script src="timeline.js"></script>
+</body>
+</html>
